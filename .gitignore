@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Config file with tokens/keys
+/CornBot/cornfig.json
