@@ -32,11 +32,20 @@ namespace CornBot.Handlers
 
             _client.Ready += ReadyAsync;
             _client.InteractionCreated += HandleInteraction;
+            _handler.Log += x =>
+            {
+                Console.WriteLine(x);
+                return Task.CompletedTask;
+            };
         }
 
         private async Task ReadyAsync()
         {
+#if DEBUG
             await _handler.RegisterCommandsToGuildAsync(_configuration.GetValue<ulong>("guild"), true);
+#else
+            await _handler.RegisterCommandsGloballyAsync();
+#endif
         }
 
         private async Task HandleInteraction(SocketInteraction interaction)

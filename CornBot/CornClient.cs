@@ -1,5 +1,6 @@
 ﻿using CornBot.Handlers;
 using CornBot.Models;
+using CornBot.Utilities;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SixLabors.Fonts;
 
 namespace CornBot
 {
@@ -21,7 +23,11 @@ namespace CornBot
 
         private readonly DiscordSocketConfig _socketConfig = new()
         {
-            GatewayIntents = GatewayIntents.All,
+            GatewayIntents = GatewayIntents.Guilds |
+                             GatewayIntents.GuildMembers |
+                             GatewayIntents.GuildEmojis |
+                             GatewayIntents.GuildMessages |
+                             GatewayIntents.DirectMessages,
             AlwaysDownloadUsers = true,
         };
 
@@ -40,6 +46,8 @@ namespace CornBot
                 .AddSingleton<InteractionService>()
                 .AddSingleton<MessageHandler>()
                 .AddSingleton<InteractionHandler>()
+                .AddSingleton<ImageManipulator>()
+                .AddSingleton<ImageStore>()
                 .BuildServiceProvider();
         }
 
@@ -52,6 +60,8 @@ namespace CornBot
 
             await _services.GetRequiredService<MessageHandler>().Initialize();
             await _services.GetRequiredService<InteractionHandler>().InitializeAsync();
+            _services.GetRequiredService<ImageManipulator>().LoadFont("Assets/consolas.ttf", 72, FontStyle.Regular);
+            await _services.GetRequiredService<ImageStore>().LoadImages();
 
             await client.LoginAsync(TokenType.Bot, _configuration["discord_token"]);
             await client.StartAsync();
