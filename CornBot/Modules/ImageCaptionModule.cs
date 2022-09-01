@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CornBot.Modules
 {
-    [EnabledInDm(true)]
     public class ImageCaptionModule : InteractionModuleBase<SocketInteractionContext>
     {
         

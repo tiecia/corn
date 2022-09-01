@@ -92,5 +92,37 @@ namespace CornBot.Models
             }
         }
 
+        public void ResetDailies()
+        {
+            foreach (var guild in Guilds.Values)
+            {
+                foreach (var user in guild.Users.Values)
+                {
+                    user.HasClaimedDaily = false;
+                }
+            }
+        }
+
+        public async Task StartDailyResetLoop()
+        {
+            var client = _services.GetRequiredService<CornClient>();
+
+            // a little messy but the best way i've come up with for getting the start of the next day
+            TimeSpan offset = new(hours: -7, minutes: 0, seconds: 0);
+            DateTimeOffset nextReset = new(DateTime.Now, offset);
+            nextReset = nextReset.AddDays(1);
+            nextReset = new(nextReset.Year, nextReset.Month, nextReset.Day, hour: 0, minute: 0, second: 0, offset);
+            while (true)
+            {
+                var timeUntilReset = nextReset - new DateTimeOffset(DateTime.Now, offset);
+                await client.Log(new LogMessage(LogSeverity.Info, "DailyReset",
+                    $"Time until next reset: {timeUntilReset}"));
+                await Task.Delay(timeUntilReset);
+                ResetDailies();
+                await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "Daily reset performed successfully!"));
+                nextReset = nextReset.AddDays(1);
+            }
+        }
+
     }
 }

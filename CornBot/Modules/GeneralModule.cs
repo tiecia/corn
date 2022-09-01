@@ -28,12 +28,6 @@ namespace CornBot.Modules
             _services = services;
         }
 
-        [SlashCommand("echo", "Repeat the input")]
-        public async Task Echo(string echo, [Summary(description: "mention the user")] bool mention = false)
-        {
-            await RespondAsync(echo + (mention ? Context.User.Mention : string.Empty));
-        }
-
         [SlashCommand("help", "Gets information on commands")]
         public async Task Help()
         {
@@ -63,7 +57,7 @@ namespace CornBot.Modules
 
             var help = new StringBuilder();
             foreach (var command in Commands.SlashCommands)
-                help.AppendLine($"{command.Name} - {command.Description}");
+                help.AppendLine($"`/{command.Name}` - {command.Description}");
 
             _helpString = help.ToString();
         }

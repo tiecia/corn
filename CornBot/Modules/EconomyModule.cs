@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 namespace CornBot.Modules
 {
 
-    [EnabledInDm(false)]
     public class EconomyModule : InteractionModuleBase<SocketInteractionContext>
     {
         
@@ -25,6 +24,7 @@ namespace CornBot.Modules
             _services = services;
         }
 
+        [EnabledInDm(false)]
         [SlashCommand("corn", "Gets your total corn count")]
         public async Task Corn([Summary(description: "user to lookup")] IUser? user = null)
         {
@@ -36,6 +36,7 @@ namespace CornBot.Modules
             await RespondAsync($"{Constants.CORN_EMOJI} {stringId} {userInfo.CornCount} corn {Constants.CORN_EMOJI}");
         }
 
+        [EnabledInDm(false)]
         [SlashCommand("daily", "Performs your daily shucking of corn")]
         public async Task Daily()
         {
@@ -51,9 +52,11 @@ namespace CornBot.Modules
             }
         }
 
+        [EnabledInDm(false)]
         [SlashCommand("lb", "Alias for /leaderboards")]
         public async Task LeaderboardsAlias() => await Leaderboards();
 
+        [EnabledInDm(false)]
         [SlashCommand("leaderboards", "Displays the top corn havers in the guild")]
         public async Task Leaderboards()
         {

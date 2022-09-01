@@ -38,6 +38,7 @@ namespace CornBot
                 .Build();
 
             _services = new ServiceCollection()
+                .AddSingleton(this)
                 .AddSingleton(_configuration)
                 .AddSingleton(_socketConfig)
                 .AddSingleton(new Random((int)DateTime.UtcNow.Ticks))
@@ -69,7 +70,7 @@ namespace CornBot
             await Task.Delay(Timeout.Infinite);
         }
 
-        private Task Log(LogMessage msg)
+        public Task Log(LogMessage msg)
         {
             if (msg.Exception is CommandException cmdException)
             {
@@ -90,6 +91,9 @@ namespace CornBot
             // TODO: verify that this definitely works and properly broadcasts exceptions
             _ = guildTracker.StartSaveLoop()
                 .ContinueWith(t => Log(new LogMessage(LogSeverity.Critical, "SaveLoop", "Save loop failed, aborting.", t.Exception)),
+                              TaskContinuationOptions.OnlyOnFaulted);
+            _ = guildTracker.StartDailyResetLoop()
+                .ContinueWith(t => Log(new LogMessage(LogSeverity.Critical, "ResetLoop", "Daily reset loop failed, aborting.", t.Exception)),
                               TaskContinuationOptions.OnlyOnFaulted);
         }
 
