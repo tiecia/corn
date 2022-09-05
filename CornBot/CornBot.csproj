@@ -21,15 +21,11 @@
   <ItemGroup>
     <None Update="cornfig.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <AssetsSourceFiles Include="Assets/**/*.*"/>
+    <Content Include="Assets/**/*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
-  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
-    <Copy SourceFiles="@(AssetsSourceFiles)" DestinationFolder="$(OutDir)/Assets" SkipUnchangedFiles="true" />
-  </Target>
-  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
-    <Copy SourceFiles="@(AssetsSourceFiles)" DestinationFolder="$(PublishDir)/Assets" SkipUnchangedFiles="true" />
-  </Target>
 
 </Project>

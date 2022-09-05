@@ -61,7 +61,16 @@ namespace CornBot
 
             await _services.GetRequiredService<MessageHandler>().Initialize();
             await _services.GetRequiredService<InteractionHandler>().InitializeAsync();
-            _services.GetRequiredService<ImageManipulator>().LoadFont("Assets/consolas.ttf", 72, FontStyle.Regular);
+
+            var imageManipulator = _services.GetRequiredService<ImageManipulator>();
+            imageManipulator.LoadFont("Assets/Consolas.ttf", 72, FontStyle.Regular);
+            imageManipulator.AddFallbackFontFamily("Assets/NotoEmoji-Bold.ttf");
+            string[] notoSansFiles = Directory.GetFiles("Assets/notosans", "*.ttf", SearchOption.TopDirectoryOnly);
+            await Log(new LogMessage(LogSeverity.Info, "MainAsync", $"Loading {notoSansFiles.Length} Noto Sans files..."));
+            foreach (var file in notoSansFiles)
+                imageManipulator.AddFallbackFontFamily(file);
+            imageManipulator.TestAllFallback();
+
             await _services.GetRequiredService<ImageStore>().LoadImages();
 
             await client.LoginAsync(TokenType.Bot, _configuration["discord_token"]);
@@ -81,6 +90,11 @@ namespace CornBot
             else
                 Console.WriteLine($"[General/{msg.Severity}] {msg}");
             return Task.CompletedTask;
+        }
+
+        public Task Log(LogSeverity severity, string source, string message, Exception? exception = null)
+        {
+            return Log(new LogMessage(severity, source, message, exception));
         }
 
         private async Task AsyncOnReady()

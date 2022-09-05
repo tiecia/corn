@@ -8,21 +8,24 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.Fonts;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CornBot.Utilities
 {
     public class ImageManipulator
     {
 
+        private IServiceProvider _services;
         private FontCollection _fontCollection;
-        public FontFamily? CurrentFontFamily { get; set; }
         public Font? CurrentFont { get; set; }
+        public List<FontFamily> FallbackFonts { get; private set; }
 
-        public ImageManipulator()
+        public ImageManipulator(IServiceProvider services)
         {
             _fontCollection = new FontCollection();
-            CurrentFontFamily = null;
             CurrentFont = null;
+            FallbackFonts = new List<FontFamily>();
+            _services = services;
         }
 
         /*
@@ -37,11 +40,12 @@ namespace CornBot.Utilities
 
             TextOptions options = new(CurrentFont)
             {
-                
+
                 Origin = new Point(20, 20),
                 WrappingLength = image.Width - 40,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 LineSpacing = 1.1f,
+                FallbackFontFamilies = FallbackFonts,
             };
 
             // get text size
@@ -61,10 +65,60 @@ namespace CornBot.Utilities
             return finalImage;
         }
 
+        public void TestAllFallback()
+        {
+            if (CurrentFont is null) return;
+
+            var client = _services.GetRequiredService<CornClient>();
+            List<FontFamily> broken = new();
+
+            foreach (var fallbackFont in FallbackFonts)
+            {
+                TextOptions options = new(CurrentFont)
+                {
+                    Origin = new Point(20, 20),
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    LineSpacing = 1.1f,
+                    FallbackFontFamilies = new[] {fallbackFont},
+                };
+
+                try
+                {
+                    TextMeasurer.Measure("test", options);
+                }
+                catch (EndOfStreamException)
+                {
+                    client.Log(Discord.LogSeverity.Warning,
+                        "FontTest", $"Removing broken font: {fallbackFont.Name}...");
+                    broken.Add(fallbackFont);
+                }
+            }
+
+            foreach (var brokenFont in broken)
+                FallbackFonts.Remove(brokenFont);
+        }
+
         public void LoadFont(string fileName, float size, FontStyle style)
         {
-            CurrentFontFamily = _fontCollection.Add(fileName);
-            CurrentFont = CurrentFontFamily?.CreateFont(size, style);
+            try
+            {
+                FontFamily? fontFamily = _fontCollection.Add(fileName);
+                CurrentFont = fontFamily?.CreateFont(size, style);
+            }
+            catch (FileNotFoundException) { };
+            if (CurrentFont is null)
+                _services.GetRequiredService<CornClient>().Log(Discord.LogSeverity.Error,
+                    "LoadFont", $"Failed to load font at {fileName}...");
+        }
+
+        public void AddFallbackFontFamily(string fileName)
+        {
+            FontFamily? fontFamily = _fontCollection.Add(fileName);
+            if (fontFamily is not null)
+                FallbackFonts.Add((FontFamily)fontFamily);
+            else
+                _services.GetRequiredService<CornClient>().Log(Discord.LogSeverity.Error,
+                    "LoadFont", $"Failed to load fallback font at {fileName}...");
         }
 
         public async Task Save(Image image, string fileName)
