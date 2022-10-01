@@ -10,6 +10,7 @@ namespace CornBot.Utilities
     {
 
         public static readonly string CORN_EMOJI = "\U0001F33D";
+        public static readonly string CALENDAR_EMOJI = "\U0001F5D3";
 
         public static readonly string CORN_LINK = "https://discordapp.com/oauth2/authorize?client_id=461849775516418059&scope=bot&permissions=0";
         public static readonly string CORN_THUMBNAIL_URL = "https://emuman.net/static/icons/corn.png";

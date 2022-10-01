@@ -67,11 +67,13 @@ namespace CornBot.Modules
             for (int i = 0; i < topUsers.Count; i++)
             {
                 var user = topUsers[i];
-                var cornAmount = economy.GetUserInfo(user).CornCount;
+                var userData = economy.GetUserInfo(user);
+                var cornAmount = userData.CornCount;
                 var stringId = user is not SocketGuildUser guildUser ?
                     user.ToString() :
                     $"{guildUser.DisplayName} ({guildUser})";
-                response.AppendLine($"{i + 1} : {stringId} - {cornAmount} corn");
+                var suffix = userData.HasClaimedDaily ? "" : $" {Constants.CALENDAR_EMOJI}";
+                response.AppendLine($"{i + 1} : {stringId} - {cornAmount} corn{suffix}");
             }
 
             var embed = new EmbedBuilder()
