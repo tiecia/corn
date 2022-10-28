@@ -18,6 +18,8 @@ namespace CornBot.Modules
         public ImageCaptionModule(IServiceProvider services)
         {
             _services = services;
+            _services.GetRequiredService<CornClient>().Log(
+                Discord.LogSeverity.Debug, "Modules", "Creating ImageCaptionModule...");
         }
 
         [SlashCommand("cool-corn", "Creates a cool corn with your caption")]

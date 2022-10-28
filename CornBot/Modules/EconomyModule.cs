@@ -22,6 +22,8 @@ namespace CornBot.Modules
         public EconomyModule(IServiceProvider services)
         {
             _services = services;
+            _services.GetRequiredService<CornClient>().Log(
+                LogSeverity.Debug, "Modules", "Creating EconomyModule...");
         }
 
         [EnabledInDm(false)]

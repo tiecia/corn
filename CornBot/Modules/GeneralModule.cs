@@ -26,6 +26,8 @@ namespace CornBot.Modules
         public GeneralModule(IServiceProvider services)
         {
             _services = services;
+            _services.GetRequiredService<CornClient>().Log(
+                LogSeverity.Debug, "Modules", "Creating GeneralModule...");
         }
 
         [SlashCommand("help", "Gets information on commands")]
