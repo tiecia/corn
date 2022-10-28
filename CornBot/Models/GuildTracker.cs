@@ -88,7 +88,7 @@ namespace CornBot.Models
             while (true)
             {
                 await SaveToFile("data.json");
-                await Task.Delay(10 * 1000);
+                await Task.Delay(60 * 1000);
             }
         }
 
@@ -121,6 +121,9 @@ namespace CornBot.Models
                 ResetDailies();
                 await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "Daily reset performed successfully!"));
                 nextReset = nextReset.AddDays(1);
+
+                await SaveToFile("data.json.bak");
+                await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "Backup file created successfully!"));
             }
         }
 

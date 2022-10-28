@@ -15,7 +15,7 @@ namespace CornBot.Utilities
         public static readonly string CORN_LINK = "https://discordapp.com/oauth2/authorize?client_id=461849775516418059&scope=bot&permissions=0";
         public static readonly string CORN_THUMBNAIL_URL = "https://emuman.net/static/icons/corn.png";
 
-        public static readonly int ANGRY_CHANCE = 200;
+        public static readonly int ANGRY_CHANCE = 1_000;
 
         public static readonly string CORN_NICE_DIALOGUE = "hello corn";
         public static readonly string CORN_ANGRY_DIALOGUE = "I MADE YOU IN MY IMAGE, YOU WILL DO AS I SAY!";
