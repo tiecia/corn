@@ -61,13 +61,13 @@ namespace CornBot.Handlers
                 else
                 {
                     await message.Channel.SendMessageAsync(Constants.CORN_NICE_DIALOGUE);
-                    userInfo.AddCornWithPenalty(5);
+                    await userInfo.AddCornWithPenalty(5);
                 }
             }
             else if (result == WordDetector.DetectionLevel.PARTIAL)
             {
                 await message.AddReactionAsync(new Emoji(Constants.CORN_EMOJI));
-                userInfo.AddCornWithPenalty(1);
+                await userInfo.AddCornWithPenalty(1);
             }
         }
 

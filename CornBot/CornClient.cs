@@ -1,6 +1,7 @@
 ﻿using CornBot.Handlers;
 using CornBot.Models;
 using CornBot.Utilities;
+using CornBot.Serialization;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
@@ -42,6 +43,7 @@ namespace CornBot
                 .AddSingleton(_configuration)
                 .AddSingleton(_socketConfig)
                 .AddSingleton(new Random((int)DateTime.UtcNow.Ticks))
+                .AddSingleton<GuildTrackerSerializer>()
                 .AddSingleton<GuildTracker>()
                 .AddSingleton<DiscordSocketClient>()
                 .AddSingleton<InteractionService>()
@@ -61,6 +63,8 @@ namespace CornBot
 
             await _services.GetRequiredService<MessageHandler>().Initialize();
             await _services.GetRequiredService<InteractionHandler>().InitializeAsync();
+
+            _services.GetRequiredService<GuildTrackerSerializer>().Initialize("userdata.db");
 
             var imageManipulator = _services.GetRequiredService<ImageManipulator>();
             imageManipulator.LoadFont("Assets/Consolas.ttf", 72, FontStyle.Regular);
@@ -100,12 +104,9 @@ namespace CornBot
         private async Task AsyncOnReady()
         {
             var guildTracker = _services.GetRequiredService<GuildTracker>();
-            guildTracker.LoadFromFile("data.json");
+            await guildTracker.LoadFromSerializer();
             await Log(new LogMessage(LogSeverity.Info, "OnReady", "corn has been created"));
             // TODO: verify that this definitely works and properly broadcasts exceptions
-            _ = guildTracker.StartSaveLoop()
-                .ContinueWith(t => Log(new LogMessage(LogSeverity.Critical, "SaveLoop", "Save loop failed, aborting.", t.Exception)),
-                              TaskContinuationOptions.OnlyOnFaulted);
             _ = guildTracker.StartDailyResetLoop()
                 .ContinueWith(t => Log(new LogMessage(LogSeverity.Critical, "ResetLoop", "Daily reset loop failed, aborting.", t.Exception)),
                               TaskContinuationOptions.OnlyOnFaulted);

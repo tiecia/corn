@@ -11,14 +11,17 @@ namespace CornBot.Models
     public class UserInfo : IComparable<UserInfo>
     {
 
+        public GuildInfo Guild { get; init; }
+
         public ulong UserId { get; private set; }
-        public long CornCount { get; set; } = 0;
-        public bool HasClaimedDaily { get; set; } = false;
+        public long CornCount { get; set; }
+        public bool HasClaimedDaily { get; set; }
+        public DateTime CornMultiplierLastEdit { get; private set; }
         public double CornMultiplier
         {
             get
             {
-                var timeSinceEdit = DateTime.UtcNow - _cornMultiplierLastEdit;
+                var timeSinceEdit = DateTime.UtcNow - CornMultiplierLastEdit;
                 _cornMultiplier = Math.Min(1.0, _cornMultiplier + timeSinceEdit.TotalSeconds * (1.0 / Constants.CORN_RECHARGE_TIME));
                 return _cornMultiplier;
             }
@@ -27,25 +30,24 @@ namespace CornBot.Models
                 _cornMultiplier = value;
             }
         }
-        private double _cornMultiplier = 1.0;
-        private DateTime _cornMultiplierLastEdit = DateTime.UtcNow;
+        private double _cornMultiplier;
 
         private readonly IServiceProvider _services;
 
-        public UserInfo(ulong userId, long cornCount, bool hasClaimedDaily, double cornMultiplier, DateTime cornMultiplierLastEdit, IServiceProvider services)
+        public UserInfo(GuildInfo guild, ulong userId, long cornCount, bool hasClaimedDaily, double cornMultiplier, DateTime cornMultiplierLastEdit, IServiceProvider services)
         {
+            Guild = guild;
             UserId = userId;
             CornCount = cornCount;
             HasClaimedDaily = hasClaimedDaily;
             _cornMultiplier = cornMultiplier;
-            _cornMultiplierLastEdit = cornMultiplierLastEdit;
+            CornMultiplierLastEdit = cornMultiplierLastEdit;
             _services = services;
         }
 
-        public UserInfo(ulong pUserId, IServiceProvider services)
+        public UserInfo(GuildInfo guild, ulong userId, IServiceProvider services)
+            : this(guild, userId, 0, false, 1.0, DateTime.UtcNow, services)
         {
-            UserId = pUserId;
-            _services = services;
         }
 
         public int CompareTo(UserInfo? other)
@@ -54,22 +56,34 @@ namespace CornBot.Models
             return CornCount.CompareTo(other.CornCount);
         }
 
-        public long PerformDaily()
+        public async Task Save()
+        {
+            await Guild.GuildTracker.SaveUserInfo(this);
+        }
+
+        public async Task LogAction(UserInfo user, UserHistory.ActionType type, long value)
+        {
+            await Guild.GuildTracker.LogAction(user, type, value);
+        }
+
+        public async Task<long> PerformDaily()
         {
             var random = _services.GetRequiredService<Random>();
             var amount = random.Next(20, 31);
             CornCount += amount;
             HasClaimedDaily = true;
+            await LogAction(this, UserHistory.ActionType.DAILY, amount);
+            await Save();
             return amount;
         }
 
-        public long AddCornWithPenalty(long amount)
+        public async Task<long> AddCornWithPenalty(long amount)
         {
             if (CornMultiplier <= 0.0)
             {
                 // user is below cooldown threshold, don't give corn and max cooldown
                 _cornMultiplier = -1.0;
-                _cornMultiplierLastEdit = DateTime.UtcNow;
+                CornMultiplierLastEdit = DateTime.UtcNow;
                 return 0;
             }
             // set penalty before corn is modified
@@ -78,8 +92,10 @@ namespace CornBot.Models
             amount = (long)Math.Round(amount * CornMultiplier);
             // apply penalty
             _cornMultiplier -= penalty;
-            _cornMultiplierLastEdit = DateTime.UtcNow;
+            CornMultiplierLastEdit = DateTime.UtcNow;
             CornCount += amount;
+            await LogAction(this, UserHistory.ActionType.MESSAGE, amount);
+            await Save();
             return amount;
         }
 

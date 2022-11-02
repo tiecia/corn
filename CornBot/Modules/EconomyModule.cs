@@ -49,7 +49,7 @@ namespace CornBot.Modules
                 await RespondAsync("what are you trying to do, spam the daily command?");
             else
             {
-                var amount = user.PerformDaily();
+                var amount = await user.PerformDaily();
                 await RespondAsync($"{Constants.CORN_EMOJI} you have shucked {amount} corn today. you now have {user.CornCount} corn {Constants.CORN_EMOJI}");
             }
         }

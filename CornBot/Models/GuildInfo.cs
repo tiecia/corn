@@ -12,28 +12,35 @@ namespace CornBot.Models
     public class GuildInfo
     {
 
+        public GuildTracker GuildTracker { get; init; }
         public Dictionary<ulong, UserInfo> Users { get; init; } = new();
-        public SocketGuild Guild { get; init; }
+        public ulong GuildId { get; init; }
 
         private readonly IServiceProvider _services;
 
-        public GuildInfo(SocketGuild guild, IServiceProvider services)
+        public GuildInfo(GuildTracker tracker, ulong guildId, IServiceProvider services)
+            : this(tracker, guildId, new(), services)
         {
-            Guild = guild;
+        }
+
+        public GuildInfo(GuildTracker tracker, ulong guildId, Dictionary<ulong, UserInfo> users, IServiceProvider services)
+        {
+            GuildTracker = tracker;
+            GuildId = guildId;
+            Users = users;
             _services = services;
         }
 
-        public GuildInfo(SocketGuild guild, Dictionary<ulong, UserInfo> users, IServiceProvider services)
+        public void AddUserInfo(UserInfo user)
         {
-            Guild = guild;
-            Users = users;
-            _services = services;
+            if (!Users.ContainsKey(user.UserId))
+                Users.Add(user.UserId, user);
         }
 
         public UserInfo GetUserInfo(IUser user)
         {
             if (!Users.ContainsKey(user.Id))
-                Users.Add(user.Id, new(user.Id, _services));
+                Users.Add(user.Id, new(this, user.Id, _services));
             return Users[user.Id];
         }
 
@@ -56,11 +63,12 @@ namespace CornBot.Models
             var leaderboard = new List<IUser>(10);
 
             var client = _services.GetRequiredService<DiscordSocketClient>();
-            await Guild.DownloadUsersAsync();
+            var guild = client.GetGuild(GuildId);
+            await guild.DownloadUsersAsync();
 
             foreach (var userInfo in allUsers.Reverse())
             {
-                var user = Guild.Users.First(u => u.Id == userInfo.UserId) ?? await client.GetUserAsync(userInfo.UserId);
+                var user = guild.Users.First(u => u.Id == userInfo.UserId) ?? await client.GetUserAsync(userInfo.UserId);
                 if (user != null)
                     leaderboard.Add(user);
                 if (leaderboard.Count >= 10)

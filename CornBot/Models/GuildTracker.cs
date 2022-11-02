@@ -14,35 +14,19 @@ namespace CornBot.Models
     public class GuildTracker
     {
 
+        private readonly GuildTrackerSerializer _serializer;
         private readonly IServiceProvider _services;
 
         public Dictionary<ulong, GuildInfo> Guilds { get; private set; } = new();
 
-        private JsonSerializerOptions _serializeOptions;
-        private JsonSerializerOptions _deserializeOptions;
-
-        public GuildTracker(IServiceProvider services)
+        public GuildTracker(GuildTrackerSerializer serializer, IServiceProvider services)
         {
+            _serializer = serializer;
             _services = services;
-
-            _serializeOptions = new JsonSerializerOptions()
-            {
-                WriteIndented = true,
-                Converters =
-                {
-                    new GuildTrackerJsonConverter(_services),
-                    new GuildInfoJsonConverter(_services),
-                    new UserInfoJsonConverter(_services)
-                }
-            };
-
-            _deserializeOptions = new JsonSerializerOptions();
-            _deserializeOptions.Converters.Add(new GuildTrackerJsonConverter(_services));
-            _deserializeOptions.Converters.Add(new GuildInfoJsonConverter(_services));
-            _deserializeOptions.Converters.Add(new UserInfoJsonConverter(_services));
         }
 
-        public GuildTracker(Dictionary<ulong, GuildInfo> guilds, IServiceProvider services) : this(services)
+        public GuildTracker(Dictionary<ulong, GuildInfo> guilds, GuildTrackerSerializer serializer, IServiceProvider services)
+            : this(serializer, services)
         {
             Guilds = guilds;
         }
@@ -50,49 +34,11 @@ namespace CornBot.Models
         public GuildInfo LookupGuild(SocketGuild guild)
         {
             if (!Guilds.ContainsKey(guild.Id))
-                Guilds.Add(guild.Id, new(guild, _services));
+                Guilds.Add(guild.Id, new(this, guild.Id, _services));
             return Guilds[guild.Id];
         }
 
-        public bool LoadFromFile(string fileName)
-        {
-            // read from file
-            if (!File.Exists(fileName)) return false;
-            string jsonString = File.ReadAllText(fileName);
-
-            // add converters to deserialization options
-            var deserializeOptions = new JsonSerializerOptions();
-            deserializeOptions.Converters.Add(new GuildTrackerJsonConverter(_services));
-            deserializeOptions.Converters.Add(new GuildInfoJsonConverter(_services));
-            deserializeOptions.Converters.Add(new UserInfoJsonConverter(_services));
-
-            // deserialize and check for failure
-            GuildTracker? guildTracker = JsonSerializer.Deserialize<GuildTracker>(jsonString, deserializeOptions);
-            if (guildTracker == null) return false;
-
-            // set current values to new values (janky, but importantly, it works with _services)
-            Guilds = guildTracker.Guilds;
-
-            return true;
-        }
-
-        public async Task SaveToFile(string fileName)
-        {
-            using FileStream createStream = File.Create(fileName);
-            await JsonSerializer.SerializeAsync(createStream, this, _serializeOptions);
-            await createStream.DisposeAsync();
-        }
-
-        public async Task StartSaveLoop()
-        {
-            while (true)
-            {
-                await SaveToFile("data.json");
-                await Task.Delay(60 * 1000);
-            }
-        }
-
-        public void ResetDailies()
+        public async Task ResetDailies()
         {
             foreach (var guild in Guilds.Values)
             {
@@ -101,6 +47,7 @@ namespace CornBot.Models
                     user.HasClaimedDaily = false;
                 }
             }
+            await _serializer.ResetAllDailies();
         }
 
         public async Task StartDailyResetLoop()
@@ -118,13 +65,31 @@ namespace CornBot.Models
                 await client.Log(new LogMessage(LogSeverity.Info, "DailyReset",
                     $"Time until next reset: {timeUntilReset}"));
                 await Task.Delay(timeUntilReset);
-                ResetDailies();
+                await ResetDailies();
                 await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "Daily reset performed successfully!"));
                 nextReset = nextReset.AddDays(1);
-
-                await SaveToFile("data.json.bak");
-                await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "Backup file created successfully!"));
             }
+        }
+
+        public async Task LoadFromSerializer()
+        {
+            Guilds = await _serializer.Load(this);
+        }
+
+        public async Task SaveUserInfo(UserInfo user)
+        {
+            await _serializer.AddOrUpdateGuild(user.Guild);
+            await _serializer.AddOrUpdateUser(user);
+        }
+
+        public async Task SaveGuildInfo(GuildInfo guild)
+        {
+            await _serializer.AddOrUpdateGuild(guild);
+        }
+
+        public async Task LogAction(UserInfo user, UserHistory.ActionType type, long value)
+        {
+            await _serializer.LogAction(user, type, value);
         }
 
     }
