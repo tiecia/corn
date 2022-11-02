@@ -57,6 +57,8 @@ namespace CornBot.Handlers
                 {
                     await message.Channel.SendMessageAsync(Constants.CORN_ANGRY_DIALOGUE);
                     userInfo.CornCount -= 1000;
+                    await userInfo.Save();
+                    await userInfo.LogAction(UserHistory.ActionType.MESSAGE, -1000);
                 }
                 else
                 {

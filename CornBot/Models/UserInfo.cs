@@ -61,9 +61,9 @@ namespace CornBot.Models
             await Guild.GuildTracker.SaveUserInfo(this);
         }
 
-        public async Task LogAction(UserInfo user, UserHistory.ActionType type, long value)
+        public async Task LogAction(UserHistory.ActionType type, long value)
         {
-            await Guild.GuildTracker.LogAction(user, type, value);
+            await Guild.GuildTracker.LogAction(this, type, value);
         }
 
         public async Task<long> PerformDaily()
@@ -72,7 +72,7 @@ namespace CornBot.Models
             var amount = random.Next(20, 31);
             CornCount += amount;
             HasClaimedDaily = true;
-            await LogAction(this, UserHistory.ActionType.DAILY, amount);
+            await LogAction(UserHistory.ActionType.DAILY, amount);
             await Save();
             return amount;
         }
@@ -94,7 +94,7 @@ namespace CornBot.Models
             _cornMultiplier -= penalty;
             CornMultiplierLastEdit = DateTime.UtcNow;
             CornCount += amount;
-            await LogAction(this, UserHistory.ActionType.MESSAGE, amount);
+            await LogAction(UserHistory.ActionType.MESSAGE, amount);
             await Save();
             return amount;
         }
