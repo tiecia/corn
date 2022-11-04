@@ -42,13 +42,9 @@ namespace CornBot.Handlers
         private async Task ReadyAsync()
         {
 #if DEBUG
-            foreach (var command in await _client.GetGlobalApplicationCommandsAsync())
-            {
-                await command.DeleteAsync();
-            }
-            await _client.GetGuild(_configuration.GetValue<ulong>("guild")).DeleteApplicationCommandsAsync();
             await _handler.RegisterCommandsToGuildAsync(_configuration.GetValue<ulong>("guild"), true);
 #else
+            await _client.GetGuild(_configuration.GetValue<ulong>("guild")).DeleteApplicationCommandsAsync();
             await _handler.RegisterCommandsGloballyAsync();
 #endif
         }
