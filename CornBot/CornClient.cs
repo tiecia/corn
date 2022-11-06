@@ -65,7 +65,6 @@ namespace CornBot
             await _services.GetRequiredService<InteractionHandler>().InitializeAsync();
 
             _services.GetRequiredService<GuildTrackerSerializer>().Initialize("userdata.db");
-            // await _services.GetRequiredService<GuildTrackerSerializer>().CopyUserData(client);
             await _services.GetRequiredService<GuildTracker>().LoadFromSerializer();
 
             var imageManipulator = _services.GetRequiredService<ImageManipulator>();

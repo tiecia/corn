@@ -271,7 +271,7 @@ namespace CornBot.Serialization
             {
                 command.CommandText = @"
                     CREATE TABLE IF NOT EXISTS users(
-                        [id] INTEGER NOT NULL PRIMARY KEY,
+                        [id] INTEGER NOT NULL,
                         [guild] INTEGER NOT NULL,
                         [corn] INTEGER NOT NULL,
                         [daily] INTEGER NOT NULL,
@@ -366,6 +366,8 @@ namespace CornBot.Serialization
             {
                 await AddUserRaw(newUser);
             }
+
+            await _connection.CloseAsync();
         }
     }
 }
