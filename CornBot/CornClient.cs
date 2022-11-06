@@ -65,6 +65,7 @@ namespace CornBot
             await _services.GetRequiredService<InteractionHandler>().InitializeAsync();
 
             _services.GetRequiredService<GuildTrackerSerializer>().Initialize("userdata.db");
+            await _services.GetRequiredService<GuildTracker>().LoadFromSerializer();
 
             var imageManipulator = _services.GetRequiredService<ImageManipulator>();
             imageManipulator.LoadFont("Assets/Consolas.ttf", 72, FontStyle.Regular);
@@ -103,11 +104,9 @@ namespace CornBot
 
         private async Task AsyncOnReady()
         {
-            var guildTracker = _services.GetRequiredService<GuildTracker>();
-            await guildTracker.LoadFromSerializer();
             await Log(new LogMessage(LogSeverity.Info, "OnReady", "corn has been created"));
             // TODO: verify that this definitely works and properly broadcasts exceptions
-            _ = guildTracker.StartDailyResetLoop()
+            _ = _services.GetRequiredService<GuildTracker>().StartDailyResetLoop()
                 .ContinueWith(t => Log(new LogMessage(LogSeverity.Critical, "ResetLoop", "Daily reset loop failed, aborting.", t.Exception)),
                               TaskContinuationOptions.OnlyOnFaulted);
         }
