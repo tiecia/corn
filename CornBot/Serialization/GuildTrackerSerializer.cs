@@ -83,7 +83,11 @@ namespace CornBot.Serialization
         {
             using (var command = _connection!.CreateCommand())
             {
-                command.CommandText = @"SELECT * FROM users WHERE id = @userId";
+                command.CommandText = @"SELECT * FROM users WHERE id = @userId AND guild = @guildId";
+                command.Parameters.AddRange(new SqliteParameter[] {
+                    new("@userId", user.UserId),
+                    new("@guildId", user.Guild.GuildId),
+                });
                 command.Parameters.AddWithValue("@userId", user.UserId);
                 await using (var userIterator = await command.ExecuteReaderAsync())
                 {
@@ -101,12 +105,12 @@ namespace CornBot.Serialization
                     INSERT INTO users(id, guild, corn, daily, corn_multiplier, corn_multiplier_last_edit)
                     VALUES(@userId, @guildId, @cornCount, @daily, @cornMultiplier, @cornMultiplierLastEdit )";
                 command.Parameters.AddRange(new SqliteParameter[] {
-                    new SqliteParameter("@userId", user.UserId),
-                    new SqliteParameter("@guildId", user.Guild.GuildId),
-                    new SqliteParameter("@cornCount", user.CornCount),
-                    new SqliteParameter("@daily", user.HasClaimedDaily ? 1 : 0),
-                    new SqliteParameter("@cornMultiplier", user.CornMultiplier),
-                    new SqliteParameter("@cornMultiplierLastEdit", user.CornMultiplierLastEdit.ToBinary()),
+                    new("@userId", user.UserId),
+                    new("@guildId", user.Guild.GuildId),
+                    new("@cornCount", user.CornCount),
+                    new("@daily", user.HasClaimedDaily ? 1 : 0),
+                    new("@cornMultiplier", user.CornMultiplier),
+                    new("@cornMultiplierLastEdit", user.CornMultiplierLastEdit.ToBinary()),
                 });
                 await command.ExecuteNonQueryAsync();
             }
@@ -122,13 +126,14 @@ namespace CornBot.Serialization
                         daily = @daily,
                         corn_multiplier = @cornMultiplier,
                         corn_multiplier_last_edit = @cornMultiplierLastEdit
-                    WHERE id = @userId";
+                    WHERE id = @userId AND guild = @guildId";
                 command.Parameters.AddRange(new SqliteParameter[] {
-                    new SqliteParameter("@cornCount", user.CornCount),
-                    new SqliteParameter("@daily", user.HasClaimedDaily ? 1 : 0),
-                    new SqliteParameter("@cornMultiplier", user.CornMultiplier),
-                    new SqliteParameter("@cornMultiplierLastEdit", user.CornMultiplierLastEdit.ToBinary()),
-                    new SqliteParameter("@userId", user.UserId),
+                    new("@cornCount", user.CornCount),
+                    new("@daily", user.HasClaimedDaily ? 1 : 0),
+                    new("@cornMultiplier", user.CornMultiplier),
+                    new("@cornMultiplierLastEdit", user.CornMultiplierLastEdit.ToBinary()),
+                    new("@userId", user.UserId),
+                    new("@guildId", user.Guild.GuildId),
                 });
                 await command.ExecuteNonQueryAsync();
             }
@@ -176,7 +181,7 @@ namespace CornBot.Serialization
                     INSERT INTO guilds(id)
                     VALUES(@guildId)";
                 command.Parameters.AddRange(new SqliteParameter[] {
-                    new SqliteParameter("@guildId", guild.GuildId)
+                    new("@guildId", guild.GuildId),
                 });
                 await command.ExecuteNonQueryAsync();
             }
@@ -204,9 +209,9 @@ namespace CornBot.Serialization
                     INSERT INTO history(user, type, value)
                     VALUES(@userId, @type, @value)";
                 command.Parameters.AddRange(new SqliteParameter[] {
-                    new SqliteParameter("@userId", user.UserId),
-                    new SqliteParameter("type", (int) type),
-                    new SqliteParameter("value", value)
+                    new("@userId", user.UserId),
+                    new("@type", (int) type),
+                    new("@value", value),
                 });
                 await command.ExecuteNonQueryAsync();
             }
