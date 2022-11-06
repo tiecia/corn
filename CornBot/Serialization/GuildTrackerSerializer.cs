@@ -6,11 +6,22 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using CornBot.Models;
 using Microsoft.Data.Sqlite;
+using Discord.WebSocket;
 
 namespace CornBot.Serialization
 {
     public class GuildTrackerSerializer
     {
+
+        private struct RawUserInfo
+        {
+            public ulong UserId;
+            public ulong GuildId;
+            public long CornCount;
+            public bool HasClaimedDaily;
+            public double CornMultiplier;
+            public DateTime CornMultiplierLastEdit;
+        }
 
         private readonly IServiceProvider _services;
         private SqliteConnection? _connection;
@@ -97,7 +108,7 @@ namespace CornBot.Serialization
             return false;
         }
 
-        public async Task AddUser(UserInfo user)
+        private async Task AddUserRaw(RawUserInfo userInfo)
         {
             using (var command = _connection!.CreateCommand())
             {
@@ -105,15 +116,27 @@ namespace CornBot.Serialization
                     INSERT INTO users(id, guild, corn, daily, corn_multiplier, corn_multiplier_last_edit)
                     VALUES(@userId, @guildId, @cornCount, @daily, @cornMultiplier, @cornMultiplierLastEdit )";
                 command.Parameters.AddRange(new SqliteParameter[] {
-                    new("@userId", user.UserId),
-                    new("@guildId", user.Guild.GuildId),
-                    new("@cornCount", user.CornCount),
-                    new("@daily", user.HasClaimedDaily ? 1 : 0),
-                    new("@cornMultiplier", user.CornMultiplier),
-                    new("@cornMultiplierLastEdit", user.CornMultiplierLastEdit.ToBinary()),
+                    new("@userId", userInfo.UserId),
+                    new("@guildId", userInfo.GuildId),
+                    new("@cornCount", userInfo.CornCount),
+                    new("@daily", userInfo.HasClaimedDaily ? 1 : 0),
+                    new("@cornMultiplier", userInfo.CornMultiplier),
+                    new("@cornMultiplierLastEdit", userInfo.CornMultiplierLastEdit.ToBinary()),
                 });
                 await command.ExecuteNonQueryAsync();
             }
+        }
+
+        public async Task AddUser(UserInfo user)
+        {
+            await AddUserRaw(new() {
+                UserId = user.UserId,
+                GuildId = user.Guild.GuildId,
+                CornCount = user.CornCount,
+                HasClaimedDaily = user.HasClaimedDaily,
+                CornMultiplier = user.CornMultiplier,
+                CornMultiplierLastEdit = user.CornMultiplierLastEdit,
+            });
         }
 
         public async Task UpdateUser(UserInfo user)
@@ -277,6 +300,71 @@ namespace CornBot.Serialization
                         [value] INTEGER NOT NULL
                     )";
                 await command.ExecuteNonQueryAsync();
+            }
+        }
+
+        /*
+         * This method is a temporary tool to copy user data from a single guild onto every other guild
+         * they are currently in. The reason it was added is as a solution to a bug in which user data
+         * was stored globally instead of on a per-guild basis, so it should not be run in usual circumstances.
+         */
+        public async Task CopyUserData(DiscordSocketClient client)
+        {
+            await CreateTablesIfNotExist();
+
+            Dictionary<ulong, List<ulong>> guildMembers = new();
+
+            foreach (var guild in client.Guilds)
+            {
+                List<ulong> userIdList = new();
+                await foreach (var userRequest in guild.GetUsersAsync())
+                {
+                    foreach (var user in userRequest)
+                    {
+                        userIdList.Add(user.Id);
+                    }
+                }
+                guildMembers.Add(guild.Id, userIdList);
+            }
+
+            List<RawUserInfo> newUsers = new();
+
+            using (var command = _connection!.CreateCommand())
+            {
+                command.CommandText = @"SELECT * FROM users;";
+
+                var userIterator = await command.ExecuteReaderAsync();
+
+                while (await userIterator.ReadAsync())
+                {
+                    var userId = (ulong)userIterator.GetInt64(0);
+                    var guildId = (ulong)userIterator.GetInt64(1);
+                    var cornCount = userIterator.GetInt64(2);
+                    var hasClaimedDaily = userIterator.GetInt32(3) != 0;
+                    var cornMultiplier = userIterator.GetDouble(4);
+                    var cornMultiplierLastEdit = DateTime.FromBinary(userIterator.GetInt64(5));
+
+                    foreach (var entry in guildMembers)
+                    {
+                        if (entry.Key != guildId && entry.Value.Contains(userId))
+                        {
+                            newUsers.Add(new RawUserInfo()
+                            {
+                                UserId = userId,
+                                GuildId = entry.Key,
+                                CornCount = cornCount,
+                                HasClaimedDaily = hasClaimedDaily,
+                                CornMultiplier = cornMultiplier,
+                                CornMultiplierLastEdit = cornMultiplierLastEdit,
+                            });
+                        }
+                    }
+                }
+            }
+
+            foreach (var newUser in newUsers)
+            {
+                await AddUserRaw(newUser);
             }
         }
     }
