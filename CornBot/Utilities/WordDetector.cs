@@ -26,7 +26,7 @@ namespace CornBot.Utilities
             word = word.ToLower();
 
             var partialTemplate = "+.*";
-            var fullTemplate = "+([^\\w\\d]|%s)*";
+            var fullTemplate = "+([^\\w\\d]|%c)*";
 
             var partialRaw = new StringBuilder();
             var fullRaw = new StringBuilder();
@@ -37,8 +37,8 @@ namespace CornBot.Utilities
                 fullRaw.Append(word[i]);
                 if (i != word.Length - 1)
                 {
-                    partialRaw.Append(partialTemplate);
-                    fullRaw.Append(fullTemplate);
+                    partialRaw.Append(partialTemplate.Replace("%c", word[i].ToString()));
+                    fullRaw.Append(fullTemplate.Replace("%c", word[i].ToString()));
                 }
             }
 

@@ -23,6 +23,7 @@ namespace CornBot.Models
             {
                 var timeSinceEdit = DateTime.UtcNow - CornMultiplierLastEdit;
                 _cornMultiplier = Math.Min(1.0, _cornMultiplier + timeSinceEdit.TotalSeconds * (1.0 / Constants.CORN_RECHARGE_TIME));
+                CornMultiplierLastEdit = DateTime.UtcNow;
                 return _cornMultiplier;
             }
             private set
@@ -92,7 +93,6 @@ namespace CornBot.Models
             amount = (long)Math.Round(amount * CornMultiplier);
             // apply penalty
             _cornMultiplier -= penalty;
-            CornMultiplierLastEdit = DateTime.UtcNow;
             CornCount += amount;
             await LogAction(UserHistory.ActionType.MESSAGE, amount);
             await Save();

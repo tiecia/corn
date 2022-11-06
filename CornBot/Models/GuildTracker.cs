@@ -55,13 +55,16 @@ namespace CornBot.Models
             var client = _services.GetRequiredService<CornClient>();
 
             // a little messy but the best way i've come up with for getting the start of the next day
-            TimeSpan offset = new(hours: -7, minutes: 0, seconds: 0);
-            DateTimeOffset nextReset = new(DateTime.Now, offset);
+            // TODO: Consolidate into external function and make method more robust
+            TimeSpan offset = new(hours: -8, minutes: 0, seconds: 0);
+            var now = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
+            DateTimeOffset nextReset = new(now, offset);
             nextReset = nextReset.AddDays(1);
             nextReset = new(nextReset.Year, nextReset.Month, nextReset.Day, hour: 0, minute: 0, second: 0, offset);
             while (true)
             {
-                var timeUntilReset = nextReset - new DateTimeOffset(DateTime.Now, offset);
+                now = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Unspecified);
+                var timeUntilReset = nextReset - new DateTimeOffset(now, offset);
                 await client.Log(new LogMessage(LogSeverity.Info, "DailyReset",
                     $"Time until next reset: {timeUntilReset}"));
                 await Task.Delay(timeUntilReset);

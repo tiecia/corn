@@ -99,7 +99,6 @@ namespace CornBot.Serialization
                     new("@userId", user.UserId),
                     new("@guildId", user.Guild.GuildId),
                 });
-                command.Parameters.AddWithValue("@userId", user.UserId);
                 await using (var userIterator = await command.ExecuteReaderAsync())
                 {
                     if (await userIterator.ReadAsync()) return true;
