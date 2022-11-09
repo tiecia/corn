@@ -38,6 +38,16 @@ namespace CornBot.Models
             return Guilds[guild.Id];
         }
 
+        public long GetTotalCorn()
+        {
+            return Guilds.Values.Sum(g => g.GetTotalCorn());
+        }
+
+        public long GetTotalCorn(IUser user)
+        {
+            return Guilds.Values.Where(g => g.UserExists(user)).Sum(g => g.GetUserInfo(user).CornCount);
+        }
+
         public async Task ResetDailies()
         {
             foreach (var guild in Guilds.Values)
@@ -93,6 +103,11 @@ namespace CornBot.Models
         public async Task LogAction(UserInfo user, UserHistory.ActionType type, long value)
         {
             await _serializer.LogAction(user, type, value);
+        }
+
+        public async Task<UserHistory> GetHistory(UserInfo user)
+        {
+            return await _serializer.GetHistory(user);
         }
 
     }

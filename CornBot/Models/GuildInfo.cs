@@ -44,6 +44,16 @@ namespace CornBot.Models
             return Users[user.Id];
         }
 
+        public bool UserExists(IUser user)
+        {
+            return Users.ContainsKey(user.Id);
+        }
+
+        public long GetTotalCorn()
+        {
+            return Users.Values.Sum(u => u.CornCount);
+        }
+
         public async Task<List<IUser>> GetLeaderboards()
         {
             /*

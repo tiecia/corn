@@ -89,5 +89,65 @@ namespace CornBot.Modules
             await RespondAsync(embeds: new Embed[] { embed });
         }
 
+        [EnabledInDm(true)]
+        [SlashCommand("total", "Gets the total corn count across all servers")]
+        public async Task Total()
+        {
+            long total = _services.GetRequiredService<GuildTracker>().GetTotalCorn();
+            await RespondAsync($"{Constants.CORN_EMOJI} a total of {total:n0} corn has been shucked across all servers {Constants.CORN_EMOJI}");
+        }
+
+        [EnabledInDm(false)]
+        [SlashCommand("stats", "Gets an overview of your recent corn shucking")]
+        public async Task Stats([Summary(description: "user to lookup")] IUser? user = null)
+        {
+            var economy = _services.GetRequiredService<GuildTracker>();
+            user ??= Context.User;
+            var userInfo = economy.LookupGuild(Context.Guild).GetUserInfo(user);
+
+            var history = await economy.GetHistory(userInfo);
+
+            EmbedFieldBuilder[] fields = new EmbedFieldBuilder[]
+            {
+                new EmbedFieldBuilder()
+                    .WithName("Daily Count")
+                    .WithValue(history.GetDailyCount().ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Daily Average")
+                    .WithValue(history.GetDailyAverage().ToString("n2"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Daily Total")
+                    .WithValue(history.GetDailyTotal().ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Message Total")
+                    .WithValue(history.GetMessageTotal().ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Global Total")
+                    .WithValue(economy.GetTotalCorn(user).ToString("n0"))
+                    .WithIsInline(true),
+            };
+
+            var displayName = user is SocketGuildUser guildUser ? guildUser.DisplayName : user.Username;
+
+            var author = new EmbedAuthorBuilder()
+                .WithIconUrl(user.GetAvatarUrl())
+                .WithName(user.ToString());
+
+            var embed = new EmbedBuilder()
+                .WithTitle($"{displayName}'s corn stats")
+                .WithAuthor(author)
+                .WithThumbnailUrl(Constants.CORN_THUMBNAIL_URL)
+                .WithCurrentTimestamp()
+                .WithColor(Color.Gold)
+                .WithFields(fields)
+                .Build();
+
+            await RespondAsync(embeds: new Embed[] { embed });
+        }
+
     }
 }
