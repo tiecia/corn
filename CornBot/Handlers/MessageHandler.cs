@@ -2,6 +2,7 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Discord.Net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,20 +56,23 @@ namespace CornBot.Handlers
             {
                 if (_services.GetRequiredService<Random>().Next(0, Constants.ANGRY_CHANCE) == 0)
                 {
-                    await message.Channel.SendMessageAsync(Constants.CORN_ANGRY_DIALOGUE);
+                    try { await message.Channel.SendMessageAsync(Constants.CORN_ANGRY_DIALOGUE); }
+                    catch (HttpException) { }
                     userInfo.CornCount -= 1000;
                     await userInfo.Save();
                     await userInfo.LogAction(UserHistory.ActionType.MESSAGE, -1000);
                 }
                 else
                 {
-                    await message.Channel.SendMessageAsync(Constants.CORN_NICE_DIALOGUE);
+                    try { await message.Channel.SendMessageAsync(Constants.CORN_NICE_DIALOGUE); }
+                    catch (HttpException) { }
                     await userInfo.AddCornWithPenalty(5);
                 }
             }
             else if (result == WordDetector.DetectionLevel.PARTIAL)
             {
-                await message.AddReactionAsync(new Emoji(Constants.CORN_EMOJI));
+                try { await message.AddReactionAsync(new Emoji(Constants.CORN_EMOJI)); }
+                catch (HttpException) { }
                 await userInfo.AddCornWithPenalty(1);
             }
         }
