@@ -21,6 +21,7 @@ namespace CornBot.Models
             public ulong UserId;
             public ActionType Type;
             public long Value;
+            public DateTimeOffset Timestamp;
         }
 
         public UserInfo User { get; init; }

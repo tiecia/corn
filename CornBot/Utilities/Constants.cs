@@ -22,6 +22,8 @@ namespace CornBot.Utilities
 
         public static readonly double CORN_RECHARGE_TIME = 30 * 60.0;
 
+        public static readonly TimeSpan TZ_OFFSET = new(hours: -8, minutes: 0, seconds: 0);
+
     }
 
 }

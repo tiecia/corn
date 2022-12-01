@@ -223,17 +223,18 @@ namespace CornBot.Serialization
                 await AddGuild(guild);
         }
 
-        public async Task LogAction(UserInfo user, UserHistory.ActionType type, long value)
+        public async Task LogAction(UserInfo user, UserHistory.ActionType type, long value, DateTimeOffset timestamp)
         {
             using (var command = _connection!.CreateCommand())
             {
                 command.CommandText = @"
-                    INSERT INTO history(user, type, value)
-                    VALUES(@userId, @type, @value)";
+                    INSERT INTO history(user, type, value, timestamp)
+                    VALUES(@userId, @type, @value, @timestamp)";
                 command.Parameters.AddRange(new SqliteParameter[] {
                     new("@userId", user.UserId),
                     new("@type", (int) type),
                     new("@value", value),
+                    new("@timestamp", timestamp.ToString("o"))
                 });
                 await command.ExecuteNonQueryAsync();
             }
@@ -256,7 +257,8 @@ namespace CornBot.Serialization
                         Id = (ulong) historyIterator.GetInt64(0),
                         UserId = (ulong) historyIterator.GetInt64(1),
                         Type = (UserHistory.ActionType) historyIterator.GetInt32(2),
-                        Value = historyIterator.GetInt64(3)
+                        Value = historyIterator.GetInt64(3),
+                        Timestamp = DateTimeOffset.Parse(historyIterator.GetString(4))
                     });
                 }
             }
@@ -296,7 +298,8 @@ namespace CornBot.Serialization
                         [id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                         [user] INTEGER NOT NULL,
                         [type] INTEGER NOT NULL,
-                        [value] INTEGER NOT NULL
+                        [value] INTEGER NOT NULL,
+                        [timestamp] TEXT NOT NULL
                     )";
                 await command.ExecuteNonQueryAsync();
             }
