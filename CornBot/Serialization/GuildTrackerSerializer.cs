@@ -7,6 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using CornBot.Models;
 using Microsoft.Data.Sqlite;
 using Discord.WebSocket;
+using Discord;
+using Newtonsoft.Json.Linq;
+using System.Reactive;
 
 namespace CornBot.Serialization
 {
@@ -109,12 +112,11 @@ namespace CornBot.Serialization
 
         private async Task AddUserRaw(RawUserInfo userInfo)
         {
-            using (var command = _connection!.CreateCommand())
-            {
-                command.CommandText = @"
+            using var command = _connection!.CreateCommand();
+            command.CommandText = @"
                     INSERT INTO users(id, guild, corn, daily, corn_multiplier, corn_multiplier_last_edit)
                     VALUES(@userId, @guildId, @cornCount, @daily, @cornMultiplier, @cornMultiplierLastEdit )";
-                command.Parameters.AddRange(new SqliteParameter[] {
+            command.Parameters.AddRange(new SqliteParameter[] {
                     new("@userId", userInfo.UserId),
                     new("@guildId", userInfo.GuildId),
                     new("@cornCount", userInfo.CornCount),
@@ -122,8 +124,7 @@ namespace CornBot.Serialization
                     new("@cornMultiplier", userInfo.CornMultiplier),
                     new("@cornMultiplierLastEdit", userInfo.CornMultiplierLastEdit.ToBinary()),
                 });
-                await command.ExecuteNonQueryAsync();
-            }
+            await command.ExecuteNonQueryAsync();
         }
 
         public async Task AddUser(UserInfo user)
@@ -140,16 +141,15 @@ namespace CornBot.Serialization
 
         public async Task UpdateUser(UserInfo user)
         {
-            using (var command = _connection!.CreateCommand())
-            {
-                command.CommandText = @"
+            using var command = _connection!.CreateCommand();
+            command.CommandText = @"
                     UPDATE users
                     SET corn = @cornCount,
                         daily = @daily,
                         corn_multiplier = @cornMultiplier,
                         corn_multiplier_last_edit = @cornMultiplierLastEdit
                     WHERE id = @userId AND guild = @guildId";
-                command.Parameters.AddRange(new SqliteParameter[] {
+            command.Parameters.AddRange(new SqliteParameter[] {
                     new("@cornCount", user.CornCount),
                     new("@daily", user.HasClaimedDaily ? 1 : 0),
                     new("@cornMultiplier", user.CornMultiplier),
@@ -157,8 +157,7 @@ namespace CornBot.Serialization
                     new("@userId", user.UserId),
                     new("@guildId", user.Guild.GuildId),
                 });
-                await command.ExecuteNonQueryAsync();
-            }
+            await command.ExecuteNonQueryAsync();
         }
 
         public async Task AddOrUpdateUser(UserInfo user)
@@ -171,14 +170,12 @@ namespace CornBot.Serialization
 
         public async Task ResetAllDailies()
         {
-            using (var command = _connection!.CreateCommand())
-            {
-                command.CommandText = @"
+            using var command = _connection!.CreateCommand();
+            command.CommandText = @"
                     UPDATE users
                     SET daily = @daily";
-                command.Parameters.AddWithValue("@daily", 0);
-                await command.ExecuteNonQueryAsync();
-            }
+            command.Parameters.AddWithValue("@daily", 0);
+            await command.ExecuteNonQueryAsync();
         }
 
         public async Task<bool> GuildExists(GuildInfo guild)
@@ -197,16 +194,14 @@ namespace CornBot.Serialization
 
         public async Task AddGuild(GuildInfo guild)
         {
-            using (var command = _connection!.CreateCommand())
-            {
-                command.CommandText = @"
+            using var command = _connection!.CreateCommand();
+            command.CommandText = @"
                     INSERT INTO guilds(id)
                     VALUES(@guildId)";
-                command.Parameters.AddRange(new SqliteParameter[] {
+            command.Parameters.AddRange(new SqliteParameter[] {
                     new("@guildId", guild.GuildId),
                 });
-                await command.ExecuteNonQueryAsync();
-            }
+            await command.ExecuteNonQueryAsync();
         }
 
         public async Task UpdateGuild(GuildInfo guild)
@@ -223,21 +218,31 @@ namespace CornBot.Serialization
                 await AddGuild(guild);
         }
 
+        public async Task LogActionRaw(UserHistory.HistoryEntry entry)
+        {
+            using var command = _connection!.CreateCommand();
+            command.CommandText = @"
+                    INSERT INTO history(user, guild, type, value, timestamp)
+                    VALUES(@userId, @guildId, @type, @value, @timestamp)";
+            command.Parameters.AddRange(new SqliteParameter[] {
+                    new("@userId", entry.UserId),
+                    new("@guildId", entry.GuildId),
+                    new("@type", (int)entry.Type),
+                    new("@value", entry.Value),
+                    new("@timestamp", entry.Timestamp.ToString("o"))
+                });
+            await command.ExecuteNonQueryAsync();
+        }
+
         public async Task LogAction(UserInfo user, UserHistory.ActionType type, long value, DateTimeOffset timestamp)
         {
-            using (var command = _connection!.CreateCommand())
-            {
-                command.CommandText = @"
-                    INSERT INTO history(user, type, value, timestamp)
-                    VALUES(@userId, @type, @value, @timestamp)";
-                command.Parameters.AddRange(new SqliteParameter[] {
-                    new("@userId", user.UserId),
-                    new("@type", (int) type),
-                    new("@value", value),
-                    new("@timestamp", timestamp.ToString("o"))
-                });
-                await command.ExecuteNonQueryAsync();
-            }
+            await LogActionRaw(new UserHistory.HistoryEntry {
+                UserId = user.UserId,
+                GuildId = user.Guild.GuildId,
+                Type = type,
+                Value = value,
+                Timestamp = timestamp,
+            });
         }
 
         public async Task<UserHistory> GetHistory(UserInfo user)
@@ -256,9 +261,10 @@ namespace CornBot.Serialization
                     history.AddAction(new UserHistory.HistoryEntry{
                         Id = (ulong) historyIterator.GetInt64(0),
                         UserId = (ulong) historyIterator.GetInt64(1),
-                        Type = (UserHistory.ActionType) historyIterator.GetInt32(2),
-                        Value = historyIterator.GetInt64(3),
-                        Timestamp = DateTimeOffset.Parse(historyIterator.GetString(4))
+                        GuildId = (ulong)historyIterator.GetInt64(2),
+                        Type = (UserHistory.ActionType) historyIterator.GetInt32(3),
+                        Value = historyIterator.GetInt64(4),
+                        Timestamp = DateTimeOffset.Parse(historyIterator.GetString(5))
                     });
                 }
             }
@@ -297,6 +303,7 @@ namespace CornBot.Serialization
                     CREATE TABLE IF NOT EXISTS history(
                         [id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                         [user] INTEGER NOT NULL,
+                        [guild] INTEGER NOT NULL,
                         [type] INTEGER NOT NULL,
                         [value] INTEGER NOT NULL,
                         [timestamp] TEXT NOT NULL
@@ -367,6 +374,69 @@ namespace CornBot.Serialization
             foreach (var newUser in newUsers)
             {
                 await AddUserRaw(newUser);
+            }
+
+            await _connection.CloseAsync();
+        }
+
+        /*
+         * This method is a temporary tool to copy user data from a single guild onto every other guild
+         * they are currently in. The reason it was added is as a solution to a bug in which user data
+         * was stored globally instead of on a per-guild basis, so it should not be run in usual circumstances.
+         */
+        public async Task CopyHistoryData(DiscordSocketClient client)
+        {
+            await CreateTablesIfNotExist();
+
+            Dictionary<ulong, List<ulong>> guildMembers = new();
+            List<UserHistory.HistoryEntry> historyToAdd = new();
+
+            foreach (var guild in client.Guilds)
+            {
+                List<ulong> userIdList = new();
+                await foreach (var userRequest in guild.GetUsersAsync())
+                {
+                    foreach (var user in userRequest)
+                    {
+                        userIdList.Add(user.Id);
+                    }
+                }
+                guildMembers.Add(guild.Id, userIdList);
+            }
+
+            using (var command = _connection!.CreateCommand())
+            {
+                command.CommandText = @"SELECT * FROM historyold;";
+
+                var historyOldIterator = await command.ExecuteReaderAsync();
+
+                while (await historyOldIterator.ReadAsync())
+                {
+                    ulong userId = (ulong)historyOldIterator.GetInt64(1);
+                    UserHistory.ActionType type = (UserHistory.ActionType)historyOldIterator.GetInt32(2);
+                    long value = historyOldIterator.GetInt64(3);
+                    DateTimeOffset timestamp = DateTimeOffset.Parse(historyOldIterator.GetString(4));
+
+                    foreach (var entry in guildMembers)
+                    {
+                        if (entry.Value.Contains(userId))
+                        {
+                            historyToAdd.Add(new UserHistory.HistoryEntry
+                            {
+                                UserId = userId,
+                                GuildId = entry.Key,
+                                Type = type,
+                                Value = value,
+                                Timestamp = timestamp,
+                            });
+                        }
+                    }
+                }
+            }
+
+            foreach (var newHistory in historyToAdd)
+            {
+                await LogActionRaw(newHistory);
             }
 
             await _connection.CloseAsync();

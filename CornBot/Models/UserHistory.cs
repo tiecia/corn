@@ -19,6 +19,7 @@ namespace CornBot.Models
         {
             public ulong Id;
             public ulong UserId;
+            public ulong GuildId;
             public ActionType Type;
             public long Value;
             public DateTimeOffset Timestamp;
@@ -41,23 +42,44 @@ namespace CornBot.Models
             this.Entries.Add(entry);
         }
 
-        public int GetDailyCount()
+        public int GetDailyCount(ulong guildId)
+        {
+            return Entries.Where(e => e.Type == ActionType.DAILY && e.GuildId == guildId).Count();
+        }
+
+        public int GetTotalDailyCount()
         {
             return Entries.Where(e => e.Type == ActionType.DAILY).Count();
         }
 
-        public double GetDailyAverage()
+        public double GetDailyAverage(ulong guildId)
         {
-            return GetDailyCount() == 0 ? 0.0 :
+            return GetDailyCount(guildId) == 0 ? 0.0 :
+                Entries.Where(e => e.Type == ActionType.DAILY).Where(e => e.GuildId == guildId).Average(e => e.Value);
+        }
+
+        public double GetTotalDailyAverage()
+        {
+            return GetTotalDailyCount() == 0 ? 0.0 :
                 Entries.Where(e => e.Type == ActionType.DAILY).Average(e => e.Value);
         }
 
-        public double GetDailyTotal()
+        public double GetDailyTotal(ulong guildId)
+        {
+            return Entries.Where(e => e.Type == ActionType.DAILY).Where(e => e.GuildId == guildId).Sum(e => e.Value);
+        }
+
+        public double GetTotalDailyTotal()
         {
             return Entries.Where(e => e.Type == ActionType.DAILY).Sum(e => e.Value);
         }
 
-        public double GetMessageTotal()
+        public double GetMessageTotal(ulong guildId)
+        {
+            return Entries.Where(e => e.Type == ActionType.MESSAGE).Where(e => e.GuildId == guildId).Sum(e => e.Value);
+        }
+
+        public double GetTotalMessageTotal()
         {
             return Entries.Where(e => e.Type == ActionType.MESSAGE).Sum(e => e.Value);
         }

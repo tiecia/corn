@@ -103,27 +103,48 @@ namespace CornBot.Modules
         {
             var economy = _services.GetRequiredService<GuildTracker>();
             user ??= Context.User;
-            var userInfo = economy.LookupGuild(Context.Guild).GetUserInfo(user);
+            var guildInfo = economy.LookupGuild(Context.Guild);
+            var userInfo = guildInfo.GetUserInfo(user);
 
             var history = await economy.GetHistory(userInfo);
 
             EmbedFieldBuilder[] fields = new EmbedFieldBuilder[]
             {
                 new EmbedFieldBuilder()
-                    .WithName("Daily Count")
-                    .WithValue(history.GetDailyCount().ToString("n0"))
+                    .WithName("Server Daily Count")
+                    .WithValue(history.GetDailyCount(guildInfo.GuildId).ToString("n0"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
-                    .WithName("Daily Average")
-                    .WithValue(history.GetDailyAverage().ToString("n2"))
+                    .WithName("Total Daily Count")
+                    .WithValue(history.GetTotalDailyCount().ToString("n0"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
-                    .WithName("Daily Total")
-                    .WithValue(history.GetDailyTotal().ToString("n0"))
+                    .WithName("Server Daily Avg")
+                    .WithValue(history.GetDailyAverage(guildInfo.GuildId).ToString("n2"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
-                    .WithName("Message Total")
-                    .WithValue(history.GetMessageTotal().ToString("n0"))
+                    .WithName("Total Daily Avg")
+                    .WithValue(history.GetTotalDailyAverage().ToString("n2"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Server Daily Total")
+                    .WithValue(history.GetDailyTotal(guildInfo.GuildId).ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Total Daily Total")
+                    .WithValue(history.GetTotalDailyTotal().ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Server Message Total")
+                    .WithValue(history.GetMessageTotal(guildInfo.GuildId).ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Total Message Total")
+                    .WithValue(history.GetTotalMessageTotal().ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Server Total")
+                    .WithValue(userInfo.CornCount.ToString("n0"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Global Total")
