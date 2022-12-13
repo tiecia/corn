@@ -54,7 +54,8 @@ namespace CornBot.Models
         public int CompareTo(UserInfo? other)
         {
             if (other == null) return 1;
-            return CornCount.CompareTo(other.CornCount);
+            int result = CornCount.CompareTo(other.CornCount);
+            return result == 0 ? 1 : result;
         }
 
         public async Task Save()

@@ -65,17 +65,23 @@ namespace CornBot.Modules
             var economy = _services.GetRequiredService<GuildTracker>().LookupGuild(Context.Guild);
             var topUsers = await economy.GetLeaderboards();
             var response = new StringBuilder();
+            long lastCornAmount = 0;
+            int lastPlacementNumber = 0;
 
             for (int i = 0; i < topUsers.Count; i++)
             {
                 var user = topUsers[i];
                 var userData = economy.GetUserInfo(user);
                 var cornAmount = userData.CornCount;
+                int placement = i + 1;
+                if (cornAmount == lastCornAmount) placement = lastPlacementNumber;
+                else lastPlacementNumber = placement;
                 var stringId = user is not SocketGuildUser guildUser ?
                     user.ToString() :
                     $"{guildUser.DisplayName} ({guildUser})";
                 var suffix = userData.HasClaimedDaily ? "" : $" {Constants.CALENDAR_EMOJI}";
-                response.AppendLine($"{i + 1} : {stringId} - {cornAmount} corn{suffix}");
+                response.AppendLine($"{placement} : {stringId} - {cornAmount} corn{suffix}");
+                lastCornAmount = cornAmount;
             }
 
             var embed = new EmbedBuilder()
@@ -115,20 +121,20 @@ namespace CornBot.Modules
                     .WithValue(history.GetDailyCount(guildInfo.GuildId).ToString("n0"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
-                    .WithName("Total Daily Count")
-                    .WithValue(history.GetTotalDailyCount().ToString("n0"))
-                    .WithIsInline(true),
-                new EmbedFieldBuilder()
                     .WithName("Server Daily Avg")
                     .WithValue(history.GetDailyAverage(guildInfo.GuildId).ToString("n2"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
-                    .WithName("Total Daily Avg")
-                    .WithValue(history.GetTotalDailyAverage().ToString("n2"))
-                    .WithIsInline(true),
-                new EmbedFieldBuilder()
                     .WithName("Server Daily Total")
                     .WithValue(history.GetDailyTotal(guildInfo.GuildId).ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Total Daily Count")
+                    .WithValue(history.GetTotalDailyCount().ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Total Daily Avg")
+                    .WithValue(history.GetTotalDailyAverage().ToString("n2"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Total Daily Total")

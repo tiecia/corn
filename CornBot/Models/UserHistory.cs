@@ -35,6 +35,7 @@ namespace CornBot.Models
                 return obj is HistoryEntry other &&
                     Id == other.Id &&
                     UserId == other.UserId &&
+                    GuildId == other.GuildId &&
                     Type == other.Type &&
                     Value == other.Value &&
                     Timestamp == other.Timestamp;
