@@ -111,5 +111,15 @@ namespace CornBot.Models
             return await _serializer.GetHistory(user);
         }
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Guilds);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is GuildTracker other && Guilds == other.Guilds;
+        }
+
     }
 }

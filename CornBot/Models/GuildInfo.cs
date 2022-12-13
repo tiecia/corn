@@ -88,5 +88,17 @@ namespace CornBot.Models
             return leaderboard;
         }
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(GuildId, Users);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is GuildInfo other &&
+                GuildId == other.GuildId &&
+                Users == other.Users;
+        }
+
     }
 }

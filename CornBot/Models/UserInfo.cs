@@ -99,5 +99,20 @@ namespace CornBot.Models
             return amount;
         }
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(UserId, CornCount, HasClaimedDaily, CornMultiplier, CornMultiplierLastEdit);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is UserInfo other &&
+                UserId == other.UserId &&
+                CornCount == other.CornCount &&
+                HasClaimedDaily == other.HasClaimedDaily &&
+                CornMultiplier == other.CornMultiplier &&
+                CornMultiplierLastEdit == other.CornMultiplierLastEdit;
+        }
+
     }
 }
