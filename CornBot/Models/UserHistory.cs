@@ -44,11 +44,15 @@ namespace CornBot.Models
 
         public UserInfo User { get; init; }
         public List<HistoryEntry> Entries { get; init; }
+        public Dictionary<ulong, HashSet<int>> Dailies { get; init; }
 
         public UserHistory(UserInfo user, List<HistoryEntry> entries)
         {
             User = user;
-            Entries = entries;
+            Entries = new();
+            Dailies = new();
+            foreach (var entry in entries)
+                AddAction(entry); // make sure dailies get properly added
         }
 
         public UserHistory(UserInfo user) : this(user, new())
@@ -57,6 +61,9 @@ namespace CornBot.Models
         public void AddAction(HistoryEntry entry)
         {
             this.Entries.Add(entry);
+            if (!Dailies.ContainsKey(entry.GuildId))
+                Dailies[entry.GuildId] = new();
+            Dailies[entry.GuildId].Add(entry.Timestamp.Day);
         }
 
         public int GetDailyCount(ulong guildId)
@@ -64,7 +71,7 @@ namespace CornBot.Models
             return Entries.Where(e => e.Type == ActionType.DAILY && e.GuildId == guildId).Count();
         }
 
-        public int GetTotalDailyCount()
+        public int GetGlobalDailyCount()
         {
             return Entries.Where(e => e.Type == ActionType.DAILY).Count();
         }
@@ -75,9 +82,9 @@ namespace CornBot.Models
                 Entries.Where(e => e.Type == ActionType.DAILY).Where(e => e.GuildId == guildId).Average(e => e.Value);
         }
 
-        public double GetTotalDailyAverage()
+        public double GetGlobalDailyAverage()
         {
-            return GetTotalDailyCount() == 0 ? 0.0 :
+            return GetGlobalDailyCount() == 0 ? 0.0 :
                 Entries.Where(e => e.Type == ActionType.DAILY).Average(e => e.Value);
         }
 
@@ -86,7 +93,7 @@ namespace CornBot.Models
             return Entries.Where(e => e.Type == ActionType.DAILY).Where(e => e.GuildId == guildId).Sum(e => e.Value);
         }
 
-        public double GetTotalDailyTotal()
+        public double GetGlobalDailyTotal()
         {
             return Entries.Where(e => e.Type == ActionType.DAILY).Sum(e => e.Value);
         }
@@ -96,9 +103,64 @@ namespace CornBot.Models
             return Entries.Where(e => e.Type == ActionType.MESSAGE).Where(e => e.GuildId == guildId).Sum(e => e.Value);
         }
 
-        public double GetTotalMessageTotal()
+        public double GetGlobalMessageTotal()
         {
             return Entries.Where(e => e.Type == ActionType.MESSAGE).Sum(e => e.Value);
+        }
+
+        public int GetLongestDailyStreak(ulong guildId)
+        {
+            int longestStreak = 0;
+            int currentStreak = 0;
+            for (int i = 1; i < 33; i++)
+            {
+                if (DailyWasDone(guildId, i))
+                    currentStreak++;
+                else
+                {
+                    if (currentStreak > longestStreak)
+                        longestStreak = currentStreak;
+                    currentStreak = 0;
+                }
+            }
+            return longestStreak;
+        }
+
+        public int GetGlobalLongestDailyStreak()
+        {
+            return GetLongestDailyStreak(0);
+        }
+
+        public int GetCurrentDailyStreak(ulong guildId)
+        {
+            var now = GuildTracker.GetAdjustedTimestamp();
+            // whether or not a daily was done today
+            // should not affect the validity of the streak
+            int currentStreak = DailyWasDone(guildId, now.Day) ? 1 : 0;
+            for (int i = now.Day - 1; i > 0; i--)
+            {
+                if (!DailyWasDone(guildId, i))
+                    break;
+                currentStreak++;
+            }
+            return currentStreak;
+        }
+
+        public int GetGlobalCurrentDailyStreak()
+        {
+            return GetCurrentDailyStreak(0);
+        }
+
+        public bool DailyWasDone(ulong guildId, int day)
+        {
+            if (guildId == 0)
+                return Dailies.Any(pair => pair.Value.Contains(day));
+            else
+            {
+                if (!Dailies.ContainsKey(guildId))
+                    Dailies[guildId] = new();
+                return Dailies[guildId].Contains(day);
+            }
         }
 
         public override int GetHashCode()

@@ -49,7 +49,7 @@ namespace CornBot.Models
             return Guilds.Values.Where(g => g.UserExists(user)).Sum(g => g.GetUserInfo(user).CornCount);
         }
 
-        public DateTimeOffset GetAdjustedTimestamp()
+        public static DateTimeOffset GetAdjustedTimestamp()
         {
             var now = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
             return new(now + Constants.TZ_OFFSET, Constants.TZ_OFFSET);

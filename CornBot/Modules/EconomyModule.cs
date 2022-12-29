@@ -130,15 +130,31 @@ namespace CornBot.Modules
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Total Daily Count")
-                    .WithValue(history.GetTotalDailyCount().ToString("n0"))
+                    .WithValue(history.GetGlobalDailyCount().ToString("n0"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Total Daily Avg")
-                    .WithValue(history.GetTotalDailyAverage().ToString("n2"))
+                    .WithValue(history.GetGlobalDailyAverage().ToString("n2"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Total Daily Total")
-                    .WithValue(history.GetTotalDailyTotal().ToString("n0"))
+                    .WithValue(history.GetGlobalDailyTotal().ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Longest Daily Streak (Server)")
+                    .WithValue(history.GetLongestDailyStreak(guildInfo.GuildId).ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Longest Daily Streak (Global)")
+                    .WithValue(history.GetGlobalLongestDailyStreak().ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Current Daily Streak (Server)")
+                    .WithValue(history.GetCurrentDailyStreak(guildInfo.GuildId).ToString("n0"))
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Current Daily Streak (Global)")
+                    .WithValue(history.GetGlobalCurrentDailyStreak().ToString("n0"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Server Message Total")
@@ -146,7 +162,7 @@ namespace CornBot.Modules
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Total Message Total")
-                    .WithValue(history.GetTotalMessageTotal().ToString("n0"))
+                    .WithValue(history.GetGlobalMessageTotal().ToString("n0"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Server Total")
