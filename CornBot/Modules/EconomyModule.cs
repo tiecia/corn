@@ -112,7 +112,7 @@ namespace CornBot.Modules
             var guildInfo = economy.LookupGuild(Context.Guild);
             var userInfo = guildInfo.GetUserInfo(user);
 
-            var history = await economy.GetHistory(userInfo);
+            var history = await economy.GetHistory(userInfo.UserId);
 
             EmbedFieldBuilder[] fields = new EmbedFieldBuilder[]
             {

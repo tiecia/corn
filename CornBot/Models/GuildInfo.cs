@@ -37,11 +37,16 @@ namespace CornBot.Models
                 Users.Add(user.UserId, user);
         }
 
+        public UserInfo GetUserInfo(ulong userId)
+        {
+            if (!Users.ContainsKey(userId))
+                Users.Add(userId, new(this, userId, _services));
+            return Users[userId];
+        }
+
         public UserInfo GetUserInfo(IUser user)
         {
-            if (!Users.ContainsKey(user.Id))
-                Users.Add(user.Id, new(this, user.Id, _services));
-            return Users[user.Id];
+            return GetUserInfo(user.Id);
         }
 
         public bool UserExists(IUser user)

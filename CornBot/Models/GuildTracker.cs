@@ -32,11 +32,16 @@ namespace CornBot.Models
             Guilds = guilds;
         }
 
+        public GuildInfo LookupGuild(ulong guildId)
+        {
+            if (!Guilds.ContainsKey(guildId))
+                Guilds.Add(guildId, new(this, guildId, _services));
+            return Guilds[guildId];
+        }
+
         public GuildInfo LookupGuild(SocketGuild guild)
         {
-            if (!Guilds.ContainsKey(guild.Id))
-                Guilds.Add(guild.Id, new(this, guild.Id, _services));
-            return Guilds[guild.Id];
+            return LookupGuild(guild.Id);
         }
 
         public long GetTotalCorn()
@@ -106,9 +111,9 @@ namespace CornBot.Models
             await _serializer.LogAction(user, type, value, GetAdjustedTimestamp());
         }
 
-        public async Task<UserHistory> GetHistory(UserInfo user)
+        public async Task<UserHistory> GetHistory(ulong userId)
         {
-            return await _serializer.GetHistory(user);
+            return await _serializer.GetHistory(userId);
         }
 
         public override int GetHashCode()

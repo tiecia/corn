@@ -42,20 +42,20 @@ namespace CornBot.Models
             }
         }
 
-        public UserInfo User { get; init; }
+        public ulong UserId { get; init; }
         public List<HistoryEntry> Entries { get; init; }
         public Dictionary<ulong, HashSet<int>> Dailies { get; init; }
 
-        public UserHistory(UserInfo user, List<HistoryEntry> entries)
+        public UserHistory(ulong userId, List<HistoryEntry> entries)
         {
-            User = user;
+            UserId = userId;
             Entries = new();
             Dailies = new();
             foreach (var entry in entries)
                 AddAction(entry); // make sure dailies get properly added
         }
 
-        public UserHistory(UserInfo user) : this(user, new())
+        public UserHistory(ulong userId) : this(userId, new())
         { }
 
         public void AddAction(HistoryEntry entry)
@@ -165,13 +165,13 @@ namespace CornBot.Models
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(User, Entries);
+            return HashCode.Combine(UserId, Entries);
         }
 
         public override bool Equals(object? obj)
         {
             return obj is UserHistory other &&
-                User == other.User &&
+                UserId == other.UserId &&
                 Entries == other.Entries;
         }
 

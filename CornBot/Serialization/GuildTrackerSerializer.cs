@@ -245,14 +245,14 @@ namespace CornBot.Serialization
             });
         }
 
-        public async Task<UserHistory> GetHistory(UserInfo user)
+        public async Task<UserHistory> GetHistory(ulong userId)
         {
-            UserHistory history = new(user);
+            UserHistory history = new(userId);
 
             using (var command = _connection!.CreateCommand())
             {
                 command.CommandText = @"SELECT * FROM history WHERE user = @userId;";
-                command.Parameters.AddWithValue("@userId", user.UserId);
+                command.Parameters.AddWithValue("@userId", userId);
 
                 var historyIterator = await command.ExecuteReaderAsync();
 
@@ -440,6 +440,27 @@ namespace CornBot.Serialization
             }
 
             await _connection.CloseAsync();
+        }
+
+        public async Task AddDaily(GuildTracker gt, int day)
+        {
+            await CreateTablesIfNotExist();
+
+            var timestamp = GuildTracker.GetAdjustedTimestamp();
+            timestamp = timestamp.AddDays(day - timestamp.Day);
+
+            foreach (var guild in gt.Guilds.Values)
+            {
+                foreach (var user in guild.Users.Values)
+                {
+                    var history = await GetHistory(user.UserId);
+                    if (history.DailyWasDone(guild.GuildId, day))
+                        continue;
+                    await LogAction(user, UserHistory.ActionType.DAILY, 25, timestamp);
+                    user.CornCount += 25;
+                    await user.Save();
+                }
+            }
         }
     }
 }
