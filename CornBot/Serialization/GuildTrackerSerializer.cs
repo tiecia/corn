@@ -312,6 +312,33 @@ namespace CornBot.Serialization
             }
         }
 
+        public async Task BackupDatabase(string path)
+        {
+            new FileInfo(path).Directory!.Create();
+            var backup = new SqliteConnection($"Data Source={path}");
+            _connection!.BackupDatabase(backup);
+            await backup.CloseAsync();
+        }
+
+        public async Task ClearDatabase()
+        {
+            using (var command = _connection!.CreateCommand())
+            {
+                command.CommandText = @"DELETE FROM users";
+                await command.ExecuteNonQueryAsync();
+            }
+            using (var command = _connection!.CreateCommand())
+            {
+                command.CommandText = @"DELETE FROM guilds";
+                await command.ExecuteNonQueryAsync();
+            }
+            using (var command = _connection!.CreateCommand())
+            {
+                command.CommandText = @"DELETE FROM history";
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
         /*
          * This method is a temporary tool to copy user data from a single guild onto every other guild
          * they are currently in. The reason it was added is as a solution to a bug in which user data

@@ -76,16 +76,35 @@ namespace CornBot.Models
         {
             var client = _services.GetRequiredService<CornClient>();
 
-            var nextReset = GetAdjustedTimestamp().AddDays(1);
+            var lastReset = GetAdjustedTimestamp();
+            var nextReset = lastReset.AddDays(1);
             nextReset = new(nextReset.Year, nextReset.Month, nextReset.Day, hour: 0, minute: 0, second: 0, Constants.TZ_OFFSET);
             while (true)
             {
+                // wait until the next day
                 var timeUntilReset = nextReset - GetAdjustedTimestamp();
                 await client.Log(new LogMessage(LogSeverity.Info, "DailyReset",
                     $"Time until next reset: {timeUntilReset}"));
                 await Task.Delay(timeUntilReset);
-                await ResetDailies();
-                await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "Daily reset performed successfully!"));
+
+                // create a backup (with date info corresponding to the previous day)
+                await _serializer.BackupDatabase($"./backups/{lastReset.Year}/{lastReset.Month}/backup-{lastReset.Day}.db");
+
+                // either reset dailies or the entire leaderboard (depending on whether end of month)
+                if (lastReset.Month == nextReset.Month)
+                {
+                    await ResetDailies();
+                    await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "Daily reset performed successfully!"));
+                }
+                else
+                {
+                    await _serializer.ClearDatabase();
+                    await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "Monthly reset performed successfully!"));
+                    await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "CORN HAS BEEN RESET FOR THE MONTH!"));
+                }
+                
+                // update next and last reset in lockstep
+                lastReset = nextReset;
                 nextReset = nextReset.AddDays(1);
             }
         }
