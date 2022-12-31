@@ -61,9 +61,12 @@ namespace CornBot.Models
         public void AddAction(HistoryEntry entry)
         {
             this.Entries.Add(entry);
-            if (!Dailies.ContainsKey(entry.GuildId))
-                Dailies[entry.GuildId] = new();
-            Dailies[entry.GuildId].Add(entry.Timestamp.Day);
+            if (entry.Type == ActionType.DAILY)
+            {
+                if (!Dailies.ContainsKey(entry.GuildId))
+                    Dailies[entry.GuildId] = new();
+                Dailies[entry.GuildId].Add(entry.Timestamp.Day);
+            }
         }
 
         public int GetDailyCount(ulong guildId)
