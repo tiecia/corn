@@ -117,52 +117,34 @@ namespace CornBot.Modules
             EmbedFieldBuilder[] fields = new EmbedFieldBuilder[]
             {
                 new EmbedFieldBuilder()
-                    .WithName("Server Daily Count")
-                    .WithValue(history.GetDailyCount(guildInfo.GuildId).ToString("n0"))
+                    .WithName("Daily Count")
+                    .WithValue($"{history.GetDailyCount(guildInfo.GuildId):n0} " +
+                        $"(global {history.GetGlobalDailyCount():n0})")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
-                    .WithName("Server Daily Avg")
-                    .WithValue(history.GetDailyAverage(guildInfo.GuildId).ToString("n2"))
+                    .WithName("Daily Average")
+                    .WithValue($"{history.GetDailyAverage(guildInfo.GuildId):n2} " +
+                        $"(global {history.GetGlobalDailyAverage():n2})")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
-                    .WithName("Server Daily Total")
-                    .WithValue(history.GetDailyTotal(guildInfo.GuildId).ToString("n0"))
+                    .WithName("Daily Total")
+                    .WithValue($"{history.GetDailyTotal(guildInfo.GuildId):n0} " +
+                        $"(global {history.GetGlobalDailyTotal():n0} )")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
-                    .WithName("Total Daily Count")
-                    .WithValue(history.GetGlobalDailyCount().ToString("n0"))
+                    .WithName("Longest Daily Streak")
+                    .WithValue($"{history.GetLongestDailyStreak(guildInfo.GuildId):n0} " +
+                        $"(global {history.GetGlobalLongestDailyStreak():n0} )")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
-                    .WithName("Total Daily Avg")
-                    .WithValue(history.GetGlobalDailyAverage().ToString("n2"))
+                    .WithName("Current Daily Streak")
+                    .WithValue($"{history.GetCurrentDailyStreak(guildInfo.GuildId):n0} " +
+                        $"(global {history.GetGlobalCurrentDailyStreak():n0} )")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
-                    .WithName("Total Daily Total")
-                    .WithValue(history.GetGlobalDailyTotal().ToString("n0"))
-                    .WithIsInline(true),
-                new EmbedFieldBuilder()
-                    .WithName("Longest Daily Streak (Server)")
-                    .WithValue(history.GetLongestDailyStreak(guildInfo.GuildId).ToString("n0"))
-                    .WithIsInline(true),
-                new EmbedFieldBuilder()
-                    .WithName("Longest Daily Streak (Global)")
-                    .WithValue(history.GetGlobalLongestDailyStreak().ToString("n0"))
-                    .WithIsInline(true),
-                new EmbedFieldBuilder()
-                    .WithName("Current Daily Streak (Server)")
-                    .WithValue(history.GetCurrentDailyStreak(guildInfo.GuildId).ToString("n0"))
-                    .WithIsInline(true),
-                new EmbedFieldBuilder()
-                    .WithName("Current Daily Streak (Global)")
-                    .WithValue(history.GetGlobalCurrentDailyStreak().ToString("n0"))
-                    .WithIsInline(true),
-                new EmbedFieldBuilder()
-                    .WithName("Server Message Total")
-                    .WithValue(history.GetMessageTotal(guildInfo.GuildId).ToString("n0"))
-                    .WithIsInline(true),
-                new EmbedFieldBuilder()
-                    .WithName("Total Message Total")
-                    .WithValue(history.GetGlobalMessageTotal().ToString("n0"))
+                    .WithName("Message Total")
+                    .WithValue($"{history.GetMessageTotal(guildInfo.GuildId):n0} " +
+                        $"(global {history.GetGlobalMessageTotal():n0}  )")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Server Total")
