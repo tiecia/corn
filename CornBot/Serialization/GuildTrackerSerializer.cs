@@ -10,6 +10,8 @@ using Discord.WebSocket;
 using Discord;
 using Newtonsoft.Json.Linq;
 using System.Reactive;
+using CornBot.Utilities;
+using System.Diagnostics;
 
 namespace CornBot.Serialization
 {
@@ -54,14 +56,15 @@ namespace CornBot.Serialization
 
             using (var gCommand = _connection!.CreateCommand())
             {
-                gCommand.CommandText = @"SELECT id FROM guilds";
+                gCommand.CommandText = @"SELECT * FROM guilds";
                 var guildIterator = await gCommand.ExecuteReaderAsync();
 
                 while (await guildIterator.ReadAsync())
                 {
                     var guildId = (ulong)guildIterator.GetInt64(0);
+                    var dailies = guildIterator.GetInt32(1);
 
-                    GuildInfo guild = new(tracker, guildId, _services);
+                    GuildInfo guild = new(tracker, guildId, dailies, _services);
 
                     using (var uCommand = _connection!.CreateCommand())
                     {
@@ -196,17 +199,27 @@ namespace CornBot.Serialization
         {
             using var command = _connection!.CreateCommand();
             command.CommandText = @"
-                    INSERT INTO guilds(id)
-                    VALUES(@guildId)";
+                    INSERT INTO guilds(id, dailies)
+                    VALUES(@guildId, @dailies)";
             command.Parameters.AddRange(new SqliteParameter[] {
                     new("@guildId", guild.GuildId),
+                    new("@dailies", guild.Dailies),
                 });
             await command.ExecuteNonQueryAsync();
         }
 
         public async Task UpdateGuild(GuildInfo guild)
         {
-            // there are currently no values in a guild that can be updated
+            using var command = _connection!.CreateCommand();
+            command.CommandText = @"
+                    UPDATE guilds
+                    SET dailies = @dailies
+                    WHERE id = @guildId";
+            command.Parameters.AddRange(new SqliteParameter[] {
+                    new("@dailies", guild.Dailies),
+                    new("@guildId", guild.GuildId),
+            });
+            await command.ExecuteNonQueryAsync();
             return;
         }
 
@@ -292,7 +305,8 @@ namespace CornBot.Serialization
             {
                 command.CommandText = @"
                     CREATE TABLE IF NOT EXISTS guilds(
-                        [id] INTEGER NOT NULL PRIMARY KEY
+                        [id] INTEGER NOT NULL PRIMARY KEY,
+                        [dailies] INTEGER NOT NULL
                     )";
                 await command.ExecuteNonQueryAsync();
             }
@@ -473,7 +487,7 @@ namespace CornBot.Serialization
         {
             await CreateTablesIfNotExist();
 
-            var timestamp = GuildTracker.GetAdjustedTimestamp();
+            var timestamp = Utility.GetAdjustedTimestamp();
             timestamp = timestamp.AddDays(day - timestamp.Day);
 
             foreach (var guild in gt.Guilds.Values)

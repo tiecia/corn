@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CornBot.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -136,7 +137,7 @@ namespace CornBot.Models
 
         public int GetCurrentDailyStreak(ulong guildId)
         {
-            var now = GuildTracker.GetAdjustedTimestamp();
+            var now = Utility.GetAdjustedTimestamp();
             // whether or not a daily was done today
             // should not affect the validity of the streak
             int currentStreak = DailyWasDone(guildId, now.Day) ? 1 : 0;

@@ -9,6 +9,12 @@ namespace CornBot.Utilities
     public class Constants
     {
 
+        public enum CornEvent
+        {
+            NONE,
+            SHARED_SHUCKING,
+        }
+
         public static readonly string CORN_EMOJI = "\U0001F33D";
         public static readonly string CALENDAR_EMOJI = "\U0001F5D3";
 
@@ -23,6 +29,8 @@ namespace CornBot.Utilities
         public static readonly double CORN_RECHARGE_TIME = 30 * 60.0;
 
         public static readonly TimeSpan TZ_OFFSET = new(hours: -8, minutes: 0, seconds: 0);
+
+        public static readonly int SHARED_SHUCKING_MAX_BONUS = 5;
 
     }
 

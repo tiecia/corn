@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CornBot.Utilities;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,20 +14,23 @@ namespace CornBot.Models
     {
 
         public GuildTracker GuildTracker { get; init; }
-        public Dictionary<ulong, UserInfo> Users { get; init; } = new();
         public ulong GuildId { get; init; }
+        public int Dailies { get; set; }
+        public Dictionary<ulong, UserInfo> Users { get; init; } = new();
 
         private readonly IServiceProvider _services;
 
-        public GuildInfo(GuildTracker tracker, ulong guildId, IServiceProvider services)
-            : this(tracker, guildId, new(), services)
+        public GuildInfo(GuildTracker tracker, ulong guildId, int dailies, IServiceProvider services)
+            : this(tracker, guildId, dailies, new(), services)
         {
         }
 
-        public GuildInfo(GuildTracker tracker, ulong guildId, Dictionary<ulong, UserInfo> users, IServiceProvider services)
+        public GuildInfo(GuildTracker tracker, ulong guildId, int dailies,
+            Dictionary<ulong, UserInfo> users, IServiceProvider services)
         {
             GuildTracker = tracker;
             GuildId = guildId;
+            Dailies = dailies;
             Users = users;
             _services = services;
         }
@@ -40,7 +44,12 @@ namespace CornBot.Models
         public UserInfo GetUserInfo(ulong userId)
         {
             if (!Users.ContainsKey(userId))
-                Users.Add(userId, new(this, userId, _services));
+            {
+                var newUser = new UserInfo(this, userId, _services);
+                if (Utility.GetCurrentEvent() == Constants.CornEvent.SHARED_SHUCKING)
+                    newUser.CornCount += Math.Min(Dailies, Constants.SHARED_SHUCKING_MAX_BONUS);
+                Users.Add(userId, newUser);
+            }
             return Users[userId];
         }
 
@@ -91,6 +100,11 @@ namespace CornBot.Models
             }
 
             return leaderboard;
+        }
+
+        public async Task Save()
+        {
+            await GuildTracker.SaveGuildInfo(this);
         }
 
         public override int GetHashCode()

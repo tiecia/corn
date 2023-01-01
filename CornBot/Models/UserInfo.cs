@@ -74,7 +74,12 @@ namespace CornBot.Models
             var amount = random.Next(20, 31);
             CornCount += amount;
             HasClaimedDaily = true;
+            Guild.Dailies += 1;
+            await Guild.Save();
             await LogAction(UserHistory.ActionType.DAILY, amount);
+            if (Utility.GetCurrentEvent() == Constants.CornEvent.SHARED_SHUCKING &&
+                Guild.Dailies <= Constants.SHARED_SHUCKING_MAX_BONUS)
+                await ProcessSharedShuckingDaily();
             await Save();
             return amount;
         }
@@ -98,6 +103,16 @@ namespace CornBot.Models
             await LogAction(UserHistory.ActionType.MESSAGE, amount);
             await Save();
             return amount;
+        }
+
+        public async Task ProcessSharedShuckingDaily()
+        {
+            foreach (var user in Guild.Users.Values)
+            {
+                user.CornCount += 1;
+                if (user != this)
+                    await user.Save();
+            }
         }
 
         public override int GetHashCode()

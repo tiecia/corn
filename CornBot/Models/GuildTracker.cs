@@ -35,7 +35,7 @@ namespace CornBot.Models
         public GuildInfo LookupGuild(ulong guildId)
         {
             if (!Guilds.ContainsKey(guildId))
-                Guilds.Add(guildId, new(this, guildId, _services));
+                Guilds.Add(guildId, new(this, guildId, 0, _services));
             return Guilds[guildId];
         }
 
@@ -54,12 +54,6 @@ namespace CornBot.Models
             return Guilds.Values.Where(g => g.UserExists(user)).Sum(g => g.GetUserInfo(user).CornCount);
         }
 
-        public static DateTimeOffset GetAdjustedTimestamp()
-        {
-            var now = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
-            return new(now + Constants.TZ_OFFSET, Constants.TZ_OFFSET);
-        }
-
         public async Task ResetDailies()
         {
             foreach (var guild in Guilds.Values)
@@ -76,13 +70,13 @@ namespace CornBot.Models
         {
             var client = _services.GetRequiredService<CornClient>();
 
-            var lastReset = GetAdjustedTimestamp();
+            var lastReset = Utility.GetAdjustedTimestamp();
             var nextReset = lastReset.AddDays(1);
             nextReset = new(nextReset.Year, nextReset.Month, nextReset.Day, hour: 0, minute: 0, second: 0, Constants.TZ_OFFSET);
             while (true)
             {
                 // wait until the next day
-                var timeUntilReset = nextReset - GetAdjustedTimestamp();
+                var timeUntilReset = nextReset - Utility.GetAdjustedTimestamp();
                 await client.Log(new LogMessage(LogSeverity.Info, "DailyReset",
                     $"Time until next reset: {timeUntilReset}"));
                 await Task.Delay(timeUntilReset);
@@ -127,7 +121,7 @@ namespace CornBot.Models
 
         public async Task LogAction(UserInfo user, UserHistory.ActionType type, long value)
         {
-            await _serializer.LogAction(user, type, value, GetAdjustedTimestamp());
+            await _serializer.LogAction(user, type, value, Utility.GetAdjustedTimestamp());
         }
 
         public async Task<UserHistory> GetHistory(ulong userId)
