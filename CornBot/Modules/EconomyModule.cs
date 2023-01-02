@@ -119,32 +119,32 @@ namespace CornBot.Modules
                 new EmbedFieldBuilder()
                     .WithName("Daily Count")
                     .WithValue($"{history.GetDailyCount(guildInfo.GuildId):n0} " +
-                        $"(global {history.GetGlobalDailyCount():n0})")
+                        $"({history.GetGlobalDailyCount():n0})")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Daily Average")
                     .WithValue($"{history.GetDailyAverage(guildInfo.GuildId):n2} " +
-                        $"(global {history.GetGlobalDailyAverage():n2})")
+                        $"({history.GetGlobalDailyAverage():n2})")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Daily Total")
                     .WithValue($"{history.GetDailyTotal(guildInfo.GuildId):n0} " +
-                        $"(global {history.GetGlobalDailyTotal():n0} )")
+                        $"({history.GetGlobalDailyTotal():n0})")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Longest Daily Streak")
                     .WithValue($"{history.GetLongestDailyStreak(guildInfo.GuildId):n0} " +
-                        $"(global {history.GetGlobalLongestDailyStreak():n0} )")
+                        $"({history.GetGlobalLongestDailyStreak():n0})")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Current Daily Streak")
                     .WithValue($"{history.GetCurrentDailyStreak(guildInfo.GuildId):n0} " +
-                        $"(global {history.GetGlobalCurrentDailyStreak():n0} )")
+                        $"({history.GetGlobalCurrentDailyStreak():n0})")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Message Total")
                     .WithValue($"{history.GetMessageTotal(guildInfo.GuildId):n0} " +
-                        $"(global {history.GetGlobalMessageTotal():n0}  )")
+                        $"({history.GetGlobalMessageTotal():n0})")
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Server Total")
@@ -164,6 +164,7 @@ namespace CornBot.Modules
 
             var embed = new EmbedBuilder()
                 .WithTitle($"{displayName}'s corn stats")
+                .WithDescription("*server (global)*")
                 .WithAuthor(author)
                 .WithThumbnailUrl(Constants.CORN_THUMBNAIL_URL)
                 .WithCurrentTimestamp()

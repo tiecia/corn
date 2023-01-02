@@ -58,6 +58,7 @@ namespace CornBot.Models
         {
             foreach (var guild in Guilds.Values)
             {
+                guild.Dailies = 0;
                 foreach (var user in guild.Users.Values)
                 {
                     user.HasClaimedDaily = false;
