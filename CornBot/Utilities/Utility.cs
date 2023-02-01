@@ -20,6 +20,7 @@ namespace CornBot.Utilities
             return GetAdjustedTimestamp().Month switch
             {
                 1 => Constants.CornEvent.SHARED_SHUCKING,
+                2 => Constants.CornEvent.SHUCKING_STREAKS,
                 _ => Constants.CornEvent.NONE,
             };
         }

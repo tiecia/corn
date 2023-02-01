@@ -72,6 +72,11 @@ namespace CornBot.Models
         {
             var random = _services.GetRequiredService<Random>();
             var amount = random.Next(20, 31);
+            if (Utility.GetCurrentEvent() == Constants.CornEvent.SHUCKING_STREAKS)
+            {
+                var history = await Guild.GuildTracker.GetHistory(UserId);
+                amount += Math.Min(history.GetCurrentDailyStreak(Guild.GuildId), 5);
+            }
             CornCount += amount;
             HasClaimedDaily = true;
             Guild.Dailies += 1;

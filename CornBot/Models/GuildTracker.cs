@@ -94,6 +94,7 @@ namespace CornBot.Models
                 else
                 {
                     await _serializer.ClearDatabase();
+                    Guilds = new();
                     await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "Monthly reset performed successfully!"));
                     await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "CORN HAS BEEN RESET FOR THE MONTH!"));
                 }
