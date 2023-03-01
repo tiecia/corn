@@ -30,7 +30,6 @@ namespace CornBot.Modules
         [EnabledInDm(false)]
         public async Task SetAnnouncementChannel(ITextChannel? channel = null)
         {
-            await RespondAsync("bruh");
             var guildTracker = _services.GetRequiredService<GuildTracker>();
             var guild = guildTracker.LookupGuild(Context.Guild.Id);
             if (channel == null)
@@ -38,8 +37,8 @@ namespace CornBot.Modules
             else
                 guild.AnnouncementChannel = channel.Id;
             await guildTracker.SaveGuildInfo(guild);
-            //await RespondAsync("The corn announcements channel has been successfully set to " +
-              //  (channel == null ? "none" : channel!.ToString()) + "!");
+            await RespondAsync("The corn announcements channel has been successfully set to " +
+                (channel == null ? "none" : channel!.ToString()) + "!");
         }
 
     }
