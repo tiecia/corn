@@ -20,7 +20,6 @@ namespace CornBot.Modules
     {
         
         public InteractionService? Commands { get; set; }
-        private string? _helpString;
         private readonly IServiceProvider _services;
 
         public GeneralModule(IServiceProvider services)
@@ -33,14 +32,16 @@ namespace CornBot.Modules
         [SlashCommand("help", "Gets information on commands")]
         public async Task Help()
         {
-            if (_helpString == null)
-                BuildHelp();
+            var isAdmin = Context.User is IGuildUser gu &&
+                gu.GuildPermissions.Has(GuildPermission.Administrator);
+
+            var helpString = BuildHelp(isAdmin);
 
             var embed = new EmbedBuilder()
                 .WithThumbnailUrl(Constants.CORN_THUMBNAIL_URL)
                 .WithTitle("Corn's commands")
                 .WithColor(Color.Gold)
-                .WithDescription(_helpString)
+                .WithDescription(helpString)
                 .WithCurrentTimestamp()
                 .Build();
 
@@ -53,15 +54,23 @@ namespace CornBot.Modules
             await RespondAsync($"you can add corn here: {Constants.CORN_LINK}");
         }
 
-        private void BuildHelp()
+        private string BuildHelp(bool includeAdmin)
         {
-            if (Commands == null) return;
+            if (Commands == null)
+                return "No loaded commands found.";
 
             var help = new StringBuilder();
             foreach (var command in Commands.SlashCommands)
-                help.AppendLine($"`/{command.Name}` - {command.Description}");
+            {
+                // skip admin only commands
+                if (includeAdmin || !command.Preconditions.Any(precon =>
+                    precon is RequireUserPermissionAttribute rupa &&
+                    rupa.GuildPermission == GuildPermission.Administrator
+                ))
+                    help.AppendLine($"`/{command.Name}` - {command.Description}");
+            }
 
-            _helpString = help.ToString();
+            return help.ToString();
         }
 
     }

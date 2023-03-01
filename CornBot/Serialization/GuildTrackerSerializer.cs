@@ -63,8 +63,9 @@ namespace CornBot.Serialization
                 {
                     var guildId = (ulong)guildIterator.GetInt64(0);
                     var dailies = guildIterator.GetInt32(1);
+                    var announcementChannel = (ulong)guildIterator.GetInt64(2);
 
-                    GuildInfo guild = new(tracker, guildId, dailies, _services);
+                    GuildInfo guild = new(tracker, guildId, dailies, announcementChannel, _services);
 
                     using (var uCommand = _connection!.CreateCommand())
                     {
@@ -187,10 +188,8 @@ namespace CornBot.Serialization
             {
                 command.CommandText = @"SELECT * FROM guilds WHERE id = @guildId";
                 command.Parameters.AddWithValue("@guildId", guild.GuildId);
-                await using (var guildIterator = await command.ExecuteReaderAsync())
-                {
-                    if (await guildIterator.ReadAsync()) return true;
-                }
+                await using var guildIterator = await command.ExecuteReaderAsync();
+                if (await guildIterator.ReadAsync()) return true;
             }
             return false;
         }
@@ -199,11 +198,12 @@ namespace CornBot.Serialization
         {
             using var command = _connection!.CreateCommand();
             command.CommandText = @"
-                    INSERT INTO guilds(id, dailies)
-                    VALUES(@guildId, @dailies)";
+                    INSERT INTO guilds(id, dailies, announcement_channel)
+                    VALUES(@guildId, @dailies, @announcementChannel)";
             command.Parameters.AddRange(new SqliteParameter[] {
                     new("@guildId", guild.GuildId),
                     new("@dailies", guild.Dailies),
+                    new("@announcementChannel", guild.AnnouncementChannel),
                 });
             await command.ExecuteNonQueryAsync();
         }
@@ -213,11 +213,13 @@ namespace CornBot.Serialization
             using var command = _connection!.CreateCommand();
             command.CommandText = @"
                     UPDATE guilds
-                    SET dailies = @dailies
+                    SET dailies = @dailies,
+                        announcement_channel = @announcementChannel
                     WHERE id = @guildId";
             command.Parameters.AddRange(new SqliteParameter[] {
                     new("@dailies", guild.Dailies),
                     new("@guildId", guild.GuildId),
+                    new("@announcementChannel", guild.AnnouncementChannel),
             });
             await command.ExecuteNonQueryAsync();
             return;
@@ -306,7 +308,8 @@ namespace CornBot.Serialization
                 command.CommandText = @"
                     CREATE TABLE IF NOT EXISTS guilds(
                         [id] INTEGER NOT NULL PRIMARY KEY,
-                        [dailies] INTEGER NOT NULL
+                        [dailies] INTEGER NOT NULL,
+                        [announcement_channel] INTEGER NOT NULL
                     )";
                 await command.ExecuteNonQueryAsync();
             }

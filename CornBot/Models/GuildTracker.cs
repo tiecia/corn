@@ -35,7 +35,7 @@ namespace CornBot.Models
         public GuildInfo LookupGuild(ulong guildId)
         {
             if (!Guilds.ContainsKey(guildId))
-                Guilds.Add(guildId, new(this, guildId, 0, _services));
+                Guilds.Add(guildId, new(this, guildId, 0, 0, _services));
             return Guilds[guildId];
         }
 

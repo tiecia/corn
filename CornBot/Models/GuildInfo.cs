@@ -16,21 +16,24 @@ namespace CornBot.Models
         public GuildTracker GuildTracker { get; init; }
         public ulong GuildId { get; init; }
         public int Dailies { get; set; }
+        public ulong AnnouncementChannel { get; set; }
         public Dictionary<ulong, UserInfo> Users { get; init; } = new();
 
         private readonly IServiceProvider _services;
 
-        public GuildInfo(GuildTracker tracker, ulong guildId, int dailies, IServiceProvider services)
-            : this(tracker, guildId, dailies, new(), services)
+        public GuildInfo(GuildTracker tracker, ulong guildId, int dailies,
+            ulong announcementChannel, IServiceProvider services)
+            : this(tracker, guildId, dailies, announcementChannel, new(), services)
         {
         }
 
-        public GuildInfo(GuildTracker tracker, ulong guildId, int dailies,
+        public GuildInfo(GuildTracker tracker, ulong guildId, int dailies, ulong announcementChannel,
             Dictionary<ulong, UserInfo> users, IServiceProvider services)
         {
             GuildTracker = tracker;
             GuildId = guildId;
             Dailies = dailies;
+            AnnouncementChannel = announcementChannel;
             Users = users;
             _services = services;
         }
