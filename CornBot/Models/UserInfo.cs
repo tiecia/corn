@@ -70,9 +70,12 @@ namespace CornBot.Models
 
         public async Task<long> PerformDaily()
         {
+            var currentEvent = Utility.GetCurrentEvent();
             var random = _services.GetRequiredService<Random>();
-            var amount = random.Next(20, 31);
-            if (Utility.GetCurrentEvent() == Constants.CornEvent.SHUCKING_STREAKS)
+            var amount = currentEvent == Constants.CornEvent.NORMAL_DISTRIBUTION_SHUCKING ?
+                (int) Math.Round(SimpleRNG.GetNormal(25.0, 3.3)) :
+                random.Next(20, 31);
+            if (currentEvent == Constants.CornEvent.SHUCKING_STREAKS)
             {
                 var history = await Guild.GuildTracker.GetHistory(UserId);
                 amount += Math.Min(history.GetCurrentDailyStreak(Guild.GuildId), 5);

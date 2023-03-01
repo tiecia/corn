@@ -21,6 +21,7 @@ namespace CornBot.Utilities
             {
                 1 => Constants.CornEvent.SHARED_SHUCKING,
                 2 => Constants.CornEvent.SHUCKING_STREAKS,
+                3 => Constants.CornEvent.NORMAL_DISTRIBUTION_SHUCKING,
                 _ => Constants.CornEvent.NONE,
             };
         }

@@ -14,6 +14,7 @@ namespace CornBot.Utilities
             NONE,
             SHARED_SHUCKING,
             SHUCKING_STREAKS,
+            NORMAL_DISTRIBUTION_SHUCKING,
         }
 
         public static readonly string CORN_EMOJI = "\U0001F33D";
