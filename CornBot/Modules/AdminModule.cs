@@ -37,8 +37,8 @@ namespace CornBot.Modules
             else
                 guild.AnnouncementChannel = channel.Id;
             await guildTracker.SaveGuildInfo(guild);
-            await RespondAsync("The corn announcements channel has been successfully set to " +
-                (channel == null ? "none" : channel!.ToString()) + "!");
+            await RespondAsync("The bean announcements channel has been successfully set to " +
+                (channel == null ? "none" : channel!.Mention) + "!");
         }
 
     }

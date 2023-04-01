@@ -14,6 +14,8 @@ namespace CornBot.Utilities
         {
             this["cool_corn"] = await Image.LoadAsync("Assets/cool_corn.png");
             this["sexy_corn"] = await Image.LoadAsync("Assets/sexy_corn.png");
+            this["cool_bean"] = await Image.LoadAsync("Assets/cool_bean.png");
+            this["sexy_bean"] = await Image.LoadAsync("Assets/sexy_bean.png");
         }
 
     }

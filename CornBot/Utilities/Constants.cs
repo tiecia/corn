@@ -19,13 +19,15 @@ namespace CornBot.Utilities
 
         public static readonly string CORN_EMOJI = "\U0001F33D";
         public static readonly string CALENDAR_EMOJI = "\U0001F5D3";
+        public static readonly string BEAN_EMOJI = "\U0001FAD8";
 
         public static readonly string CORN_LINK = "https://discordapp.com/oauth2/authorize?client_id=461849775516418059&scope=bot&permissions=0";
         public static readonly string CORN_THUMBNAIL_URL = "https://emuman.net/static/icons/corn.png";
+        public static readonly string BEAN_THUMBNAIL_URL = "https://emuman.net/static/icons/bean.png";
 
         public static readonly int ANGRY_CHANCE = 1_000;
 
-        public static readonly string CORN_NICE_DIALOGUE = "hello corn";
+        public static readonly string CORN_NICE_DIALOGUE = "hello bean";
         public static readonly string CORN_ANGRY_DIALOGUE = "I MADE YOU IN MY IMAGE, YOU WILL DO AS I SAY!";
 
         public static readonly double CORN_RECHARGE_TIME = 30 * 60.0;

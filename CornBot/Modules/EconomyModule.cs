@@ -27,7 +27,7 @@ namespace CornBot.Modules
         }
 
         [EnabledInDm(false)]
-        [SlashCommand("corn", "Gets your total corn count")]
+        [SlashCommand("beans", "Gets your total bean count")]
         public async Task Corn([Summary(description: "user to lookup")] IUser? user = null)
         {
             var economy = _services.GetRequiredService<GuildTracker>();
@@ -35,11 +35,11 @@ namespace CornBot.Modules
             var stringId = user is null ? "you have" :
                     user is not SocketGuildUser guildUser ? $"{user} has" :
                     $"{guildUser.DisplayName} ({guildUser}) has";
-            await RespondAsync($"{Constants.CORN_EMOJI} {stringId} {userInfo.CornCount} corn {Constants.CORN_EMOJI}");
+            await RespondAsync($"{Constants.BEAN_EMOJI} {stringId} {userInfo.CornCount} beans {Constants.BEAN_EMOJI}");
         }
 
         [EnabledInDm(false)]
-        [SlashCommand("daily", "Performs your daily shucking of corn")]
+        [SlashCommand("daily", "Performs your daily canning of beans")]
         public async Task Daily()
         {
             var economy = _services.GetRequiredService<GuildTracker>();
@@ -50,7 +50,7 @@ namespace CornBot.Modules
             else
             {
                 var amount = await user.PerformDaily();
-                await RespondAsync($"{Constants.CORN_EMOJI} you have shucked {amount} corn today. you now have {user.CornCount} corn {Constants.CORN_EMOJI}");
+                await RespondAsync($"{Constants.BEAN_EMOJI} you have canned {amount} beans today. you now have {user.CornCount} beans {Constants.BEAN_EMOJI}");
             }
         }
 
@@ -59,7 +59,7 @@ namespace CornBot.Modules
         public async Task LeaderboardsAlias() => await Leaderboards();
 
         [EnabledInDm(false)]
-        [SlashCommand("leaderboards", "Displays the top corn havers in the guild")]
+        [SlashCommand("leaderboards", "Displays the top bean havers in the guild")]
         public async Task Leaderboards()
         {
             var economy = _services.GetRequiredService<GuildTracker>().LookupGuild(Context.Guild);
@@ -80,14 +80,14 @@ namespace CornBot.Modules
                     user.ToString() :
                     $"{guildUser.DisplayName} ({guildUser})";
                 var suffix = userData.HasClaimedDaily ? "" : $" {Constants.CALENDAR_EMOJI}";
-                response.AppendLine($"{placement} : {stringId} - {cornAmount} corn{suffix}");
+                response.AppendLine($"{placement} : {stringId} - {cornAmount} beans{suffix}");
                 lastCornAmount = cornAmount;
             }
 
             var embed = new EmbedBuilder()
-                .WithColor(Color.Gold)
-                .WithThumbnailUrl(Constants.CORN_THUMBNAIL_URL)
-                .WithTitle("Top corn havers:")
+                .WithColor(Color.DarkOrange)
+                .WithThumbnailUrl(Constants.BEAN_THUMBNAIL_URL)
+                .WithTitle("Top bean havers:")
                 .WithDescription(response.ToString())
                 .WithCurrentTimestamp()
                 .Build();
@@ -96,15 +96,15 @@ namespace CornBot.Modules
         }
 
         [EnabledInDm(true)]
-        [SlashCommand("total", "Gets the total corn count across all servers")]
+        [SlashCommand("total", "Gets the total bean count across all servers")]
         public async Task Total()
         {
             long total = _services.GetRequiredService<GuildTracker>().GetTotalCorn();
-            await RespondAsync($"{Constants.CORN_EMOJI} a total of {total:n0} corn has been shucked across all servers {Constants.CORN_EMOJI}");
+            await RespondAsync($"{Constants.BEAN_EMOJI} a total of {total:n0} beans have been canned across all servers {Constants.BEAN_EMOJI}");
         }
 
         [EnabledInDm(false)]
-        [SlashCommand("stats", "Gets an overview of your recent corn shucking")]
+        [SlashCommand("stats", "Gets an overview of your recent bean canning")]
         public async Task Stats([Summary(description: "user to lookup")] IUser? user = null)
         {
             var economy = _services.GetRequiredService<GuildTracker>();
@@ -163,12 +163,12 @@ namespace CornBot.Modules
                 .WithName(user.ToString());
 
             var embed = new EmbedBuilder()
-                .WithTitle($"{displayName}'s corn stats")
+                .WithTitle($"{displayName}'s bean stats")
                 .WithDescription("*server (global)*")
                 .WithAuthor(author)
-                .WithThumbnailUrl(Constants.CORN_THUMBNAIL_URL)
+                .WithThumbnailUrl(Constants.BEAN_THUMBNAIL_URL)
                 .WithCurrentTimestamp()
-                .WithColor(Color.Gold)
+                .WithColor(Color.DarkOrange)
                 .WithFields(fields)
                 .Build();
 
