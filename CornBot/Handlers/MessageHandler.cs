@@ -26,7 +26,7 @@ namespace CornBot.Handlers
         {
             _client = client;
             _services = services;
-            _cornDetector = new WordDetector("corn", "\U0001F33D");
+            _cornDetector = new WordDetector("bean", Constants.BEAN_EMOJI);
         }
 
         public Task Initialize()
