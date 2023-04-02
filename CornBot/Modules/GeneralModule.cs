@@ -38,9 +38,9 @@ namespace CornBot.Modules
             var helpString = BuildHelp(isAdmin);
 
             var embed = new EmbedBuilder()
-                .WithThumbnailUrl(Constants.BEAN_THUMBNAIL_URL)
-                .WithTitle("bean's commands")
-                .WithColor(Color.DarkOrange)
+                .WithThumbnailUrl(Constants.CORN_THUMBNAIL_URL)
+                .WithTitle("corn's commands")
+                .WithColor(Color.Gold)
                 .WithDescription(helpString)
                 .WithCurrentTimestamp()
                 .Build();
@@ -48,10 +48,10 @@ namespace CornBot.Modules
             await RespondAsync(embeds: new Embed[] { embed });
         }
 
-        [SlashCommand("link", "Gets the link to add bean to your server")]
+        [SlashCommand("link", "Gets the link to add corn to your server")]
         public async Task Link()
         {
-            await RespondAsync($"you can add bean here: {Constants.CORN_LINK}");
+            await RespondAsync($"you can add corn here: {Constants.CORN_LINK}");
         }
 
         private string BuildHelp(bool includeAdmin)

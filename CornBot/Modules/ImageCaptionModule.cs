@@ -22,10 +22,10 @@ namespace CornBot.Modules
                 Discord.LogSeverity.Debug, "Modules", "Creating ImageCaptionModule...");
         }
 
-        [SlashCommand("cool-bean", "Creates a cool bean with your caption")]
-        public async Task CoolCorn([Summary(description: "what cool bean will say")] string text)
+        [SlashCommand("cool-corn", "Creates a cool corn with your caption")]
+        public async Task CoolCorn([Summary(description: "what cool corn will say")] string text)
         {
-            var coolCorn = _services.GetRequiredService<ImageStore>()["cool_bean"];
+            var coolCorn = _services.GetRequiredService<ImageStore>()["cool_corn"];
             var manipulator = _services.GetRequiredService<ImageManipulator>();
             var newImage = manipulator.AddTopText(coolCorn, text);
             if (newImage is null)
@@ -34,13 +34,13 @@ namespace CornBot.Modules
                 return;
             }
             var bytes = await manipulator.GetBytes(newImage);
-            await RespondWithFileAsync(bytes, "cool_bean.png");
+            await RespondWithFileAsync(bytes, "cool_corn.png");
         }
 
-        [SlashCommand("sexy-bean", "Creates a sexy bean with your caption")]
-        public async Task SexyCorn([Summary(description: "what sexy bean will say")] string text)
+        [SlashCommand("sexy-corn", "Creates a sexy corn with your caption")]
+        public async Task SexyCorn([Summary(description: "what sexy corn will say")] string text)
         {
-            var sexyCorn = _services.GetRequiredService<ImageStore>()["sexy_bean"];
+            var sexyCorn = _services.GetRequiredService<ImageStore>()["sexy_corn"];
             var manipulator = _services.GetRequiredService<ImageManipulator>();
             var newImage = manipulator.AddTopText(sexyCorn, text);
             if (newImage is null)
@@ -49,7 +49,7 @@ namespace CornBot.Modules
                 return;
             }
             var bytes = await manipulator.GetBytes(newImage);
-            await RespondWithFileAsync(bytes, "sexy_bean.png");
+            await RespondWithFileAsync(bytes, "sexy_corn.png");
         }
 
     }
