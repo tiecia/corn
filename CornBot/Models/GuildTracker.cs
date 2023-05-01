@@ -67,6 +67,12 @@ namespace CornBot.Models
             await _serializer.ResetAllDailies();
         }
 
+        public async Task SendAllMonthlyRecaps()
+        {
+            foreach (var guild in Guilds.Values)
+                await guild.SendMonthlyRecap();
+        }
+
         public async Task StartDailyResetLoop()
         {
             var client = _services.GetRequiredService<CornClient>();
@@ -93,6 +99,8 @@ namespace CornBot.Models
                 }
                 else
                 {
+                    await SendAllMonthlyRecaps();
+                    
                     await _serializer.ClearDatabase();
                     Guilds = new();
                     await client.Log(new LogMessage(LogSeverity.Info, "DailyReset", "Monthly reset performed successfully!"));

@@ -63,32 +63,12 @@ namespace CornBot.Modules
         public async Task Leaderboards()
         {
             var economy = _services.GetRequiredService<GuildTracker>().LookupGuild(Context.Guild);
-            var topUsers = await economy.GetLeaderboards();
-            var response = new StringBuilder();
-            long lastCornAmount = 0;
-            int lastPlacementNumber = 0;
-
-            for (int i = 0; i < topUsers.Count; i++)
-            {
-                var user = topUsers[i];
-                var userData = economy.GetUserInfo(user);
-                var cornAmount = userData.CornCount;
-                int placement = i + 1;
-                if (cornAmount == lastCornAmount) placement = lastPlacementNumber;
-                else lastPlacementNumber = placement;
-                var stringId = user is not SocketGuildUser guildUser ?
-                    user.ToString() :
-                    $"{guildUser.DisplayName} ({guildUser})";
-                var suffix = userData.HasClaimedDaily ? "" : $" {Constants.CALENDAR_EMOJI}";
-                response.AppendLine($"{placement} : {stringId} - {cornAmount} corn{suffix}");
-                lastCornAmount = cornAmount;
-            }
 
             var embed = new EmbedBuilder()
                 .WithColor(Color.Gold)
                 .WithThumbnailUrl(Constants.CORN_THUMBNAIL_URL)
                 .WithTitle("Top corn havers:")
-                .WithDescription(response.ToString())
+                .WithDescription(await economy.GetLeaderboardsString())
                 .WithCurrentTimestamp()
                 .Build();
 
