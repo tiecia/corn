@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CornBot.Utilities;
 using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -223,7 +224,8 @@ namespace CornBot.Models
                 .WithCurrentTimestamp()
                 .Build();
 
-            await textChannel.SendMessageAsync(embeds: new Embed[] { embed });
+            try { await textChannel.SendMessageAsync(embeds: new Embed[] { embed }); }
+            catch (HttpException) { }
         }
 
         public override int GetHashCode()
