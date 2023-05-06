@@ -77,10 +77,6 @@ namespace CornBot.Models
                 var history = await Guild.GuildTracker.GetHistory(UserId);
                 amount += Math.Min(history.GetCurrentDailyStreak(Guild.GuildId), 5);
             }
-            if (UserId == 170719819715313665 && Guild.GuildId == 112413565838782464)
-            {
-                amount = 9;
-            }
             CornCount += amount;
             HasClaimedDaily = true;
             Guild.Dailies += 1;
