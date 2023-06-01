@@ -15,10 +15,13 @@ namespace CornBot.Utilities
             SHARED_SHUCKING,
             SHUCKING_STREAKS,
             NORMAL_DISTRIBUTION_SHUCKING,
+            PRIDE,
         }
 
         public static readonly string CORN_EMOJI = "\U0001F33D";
         public static readonly string CALENDAR_EMOJI = "\U0001F5D3";
+        public static readonly string RAINBOW_EMOJI = "\U0001F308";
+        public static readonly string PRIDE_CORN_EMOJI = "<:pridecorn:1113715834439880725>";
 
         public static readonly string CORN_LINK = "https://discordapp.com/oauth2/authorize?client_id=461849775516418059&scope=bot&permissions=0";
         public static readonly string CORN_THUMBNAIL_URL = "https://emuman.net/static/icons/corn.png";
@@ -27,6 +30,8 @@ namespace CornBot.Utilities
 
         public static readonly string CORN_NICE_DIALOGUE = "hello corn";
         public static readonly string CORN_ANGRY_DIALOGUE = "I MADE YOU IN MY IMAGE, YOU WILL DO AS I SAY!";
+        public static readonly string CORN_PRIDE_DIALOGUE = "happy pride!";
+        public static readonly string CORN_PRIDE_DIALOGUE_COMBINED = "hello corn, happy pride!";
 
         public static readonly double CORN_RECHARGE_TIME = 30 * 60.0;
 
