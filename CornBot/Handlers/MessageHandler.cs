@@ -53,17 +53,14 @@ namespace CornBot.Handlers
 
             WordDetector.DetectionLevel result = _cornDetector.Parse(content);
             WordDetector.DetectionLevel prideResult = _prideDetector.Parse(content);
+            var isPride = prideResult == WordDetector.DetectionLevel.FULL &&
+                        Utility.GetCurrentEvent() == Constants.CornEvent.PRIDE;
 
             // this is a little stupid but necessary i guess
             if (message.MentionedUsers.Any(u => u.Id == _client.CurrentUser.Id) ||
                 result == WordDetector.DetectionLevel.FULL)
             {
-                if (prideResult == WordDetector.DetectionLevel.FULL)
-                {
-                    try { await message.Channel.SendMessageAsync(Constants.CORN_PRIDE_DIALOGUE_COMBINED); }
-                    catch (HttpException) { }
-                }
-                else if (_services.GetRequiredService<Random>().Next(0, Constants.ANGRY_CHANCE) == 0)
+                if (_services.GetRequiredService<Random>().Next(0, Constants.ANGRY_CHANCE) == 0 && !isPride)
                 {
                     try { await message.Channel.SendMessageAsync(Constants.CORN_ANGRY_DIALOGUE); }
                     catch (HttpException) { }
@@ -73,7 +70,9 @@ namespace CornBot.Handlers
                 }
                 else
                 {
-                    try { await message.Channel.SendMessageAsync(Constants.CORN_NICE_DIALOGUE); }
+                    var response = isPride ?
+                        Constants.CORN_PRIDE_DIALOGUE_COMBINED : Constants.CORN_NICE_DIALOGUE;
+                    try { await message.Channel.SendMessageAsync(response); }
                     catch (HttpException) { }
                     await userInfo.AddCornWithPenalty(5);
                 }
@@ -95,8 +94,7 @@ namespace CornBot.Handlers
                 catch (HttpException) { }
                 await userInfo.AddCornWithPenalty(1);
             }
-            else if (Utility.GetCurrentEvent() == Constants.CornEvent.PRIDE &&
-                prideResult == WordDetector.DetectionLevel.FULL)
+            else if (isPride)
             {
                 await message.Channel.SendMessageAsync(Constants.CORN_PRIDE_DIALOGUE);
             }
