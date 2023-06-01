@@ -27,6 +27,9 @@ namespace CornBot.Utilities
         public static readonly string CORN_THUMBNAIL_URL = "https://emuman.net/static/icons/corn.png";
 
         public static readonly int ANGRY_CHANCE = 1_000;
+        public static readonly double CORN_DAILY_MEAN = 50.0;
+        public static readonly double CORN_DAILY_STD_DEV = 15.0;
+
 
         public static readonly string CORN_NICE_DIALOGUE = "hello corn";
         public static readonly string CORN_ANGRY_DIALOGUE = "I MADE YOU IN MY IMAGE, YOU WILL DO AS I SAY!";
