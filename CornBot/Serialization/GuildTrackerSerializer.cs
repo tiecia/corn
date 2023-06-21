@@ -222,7 +222,6 @@ namespace CornBot.Serialization
                     new("@announcementChannel", guild.AnnouncementChannel),
             });
             await command.ExecuteNonQueryAsync();
-            return;
         }
 
         public async Task AddOrUpdateGuild(GuildInfo guild)
@@ -344,11 +343,16 @@ namespace CornBot.Serialization
                 command.CommandText = @"DELETE FROM users";
                 await command.ExecuteNonQueryAsync();
             }
+
+            // have to update guilds differently to avoid resetting announcements channel
             using (var command = _connection!.CreateCommand())
             {
-                command.CommandText = @"DELETE FROM guilds";
+                command.CommandText = @"
+                    UPDATE guilds
+                    SET dailies = 0";
                 await command.ExecuteNonQueryAsync();
-            }
+            }            
+
             using (var command = _connection!.CreateCommand())
             {
                 command.CommandText = @"DELETE FROM history";
