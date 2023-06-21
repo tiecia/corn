@@ -202,18 +202,18 @@ namespace CornBot.Models
             }
 
             var response = new StringBuilder();
-            response.AppendLine($"A total of {serverShucks} corn was shucked in this server, out of {globalShucks} globally!");
+            response.AppendLine($"A total of {serverShucks:n0} corn was shucked in this server, out of {globalShucks:n0} globally!");
             response.AppendLine($"");
             response.AppendLine($"Top 3 shuckers:");
             response.AppendLine(leaderboards);
             if (bestLuckName != null && bestLuck != null)
             {
-                response.AppendLine($"The most lucky shucker in the server was {bestLuckName} with a daily average of {bestLuck.GetDailyAverage(GuildId)}!");
+                response.AppendLine($"The most lucky shucker in the server was {bestLuckName} with a daily average of {bestLuck.GetDailyAverage(GuildId):n2}!");
                 response.AppendLine($"");
             }
             if (worstLuckName != null && worstLuck != null)
             {
-                response.AppendLine($"Unfortunately, there was also {worstLuckName} with a daily average of {worstLuck.GetDailyAverage(GuildId)}.");
+                response.AppendLine($"Unfortunately, there was also {worstLuckName} with a daily average of {worstLuck.GetDailyAverage(GuildId):n2}.");
             }
 
             var embed = new EmbedBuilder()

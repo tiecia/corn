@@ -30,12 +30,14 @@ namespace CornBot.Modules
         [SlashCommand("corn", "Gets your total corn count")]
         public async Task Corn([Summary(description: "user to lookup")] IUser? user = null)
         {
+            var cornEmoji = Utility.GetCurrentEvent() == Constants.CornEvent.PRIDE ?
+                Constants.PRIDE_CORN_EMOJI : Constants.CORN_EMOJI;
             var economy = _services.GetRequiredService<GuildTracker>();
             var userInfo = economy.LookupGuild(Context.Guild).GetUserInfo(user ?? Context.User);
             var stringId = user is null ? "you have" :
                     user is not SocketGuildUser guildUser ? $"{user} has" :
                     $"{guildUser.DisplayName} ({guildUser}) has";
-            await RespondAsync($"{Constants.CORN_EMOJI} {stringId} {userInfo.CornCount} corn {Constants.CORN_EMOJI}");
+            await RespondAsync($"{cornEmoji} {stringId} {userInfo.CornCount} corn {cornEmoji}");
         }
 
         [EnabledInDm(false)]
@@ -49,8 +51,10 @@ namespace CornBot.Modules
                 await RespondAsync("what are you trying to do, spam the daily command?");
             else
             {
+                var cornEmoji = Utility.GetCurrentEvent() == Constants.CornEvent.PRIDE ?
+                    Constants.PRIDE_CORN_EMOJI : Constants.CORN_EMOJI;
                 var amount = await user.PerformDaily();
-                await RespondAsync($"{Constants.CORN_EMOJI} you have shucked {amount} corn today. you now have {user.CornCount} corn {Constants.CORN_EMOJI}");
+                await RespondAsync($"{cornEmoji} you have shucked {amount} corn today. you now have {user.CornCount} corn {cornEmoji}");
             }
         }
 
@@ -79,8 +83,10 @@ namespace CornBot.Modules
         [SlashCommand("total", "Gets the total corn count across all servers")]
         public async Task Total()
         {
+            var cornEmoji = Utility.GetCurrentEvent() == Constants.CornEvent.PRIDE ?
+                Constants.PRIDE_CORN_EMOJI : Constants.CORN_EMOJI;
             long total = _services.GetRequiredService<GuildTracker>().GetTotalCorn();
-            await RespondAsync($"{Constants.CORN_EMOJI} a total of {total:n0} corn has been shucked across all servers {Constants.CORN_EMOJI}");
+            await RespondAsync($"{cornEmoji} a total of {total:n0} corn has been shucked across all servers {cornEmoji}");
         }
 
         [EnabledInDm(false)]
