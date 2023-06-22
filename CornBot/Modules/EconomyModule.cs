@@ -161,5 +161,47 @@ namespace CornBot.Modules
             await RespondAsync(embeds: new Embed[] { embed });
         }
 
+        [EnabledInDm(false)]
+        [SlashCommand("cornucopia", "play a game of slots to gamble your corn")]
+        public async Task Cornucopia([Summary(description: "amount of corn to gamble")] long amount)
+        {
+            var economy = _services.GetRequiredService<GuildTracker>();
+            var userInfo = economy.LookupGuild(Context.Guild).GetUserInfo(Context.User);
+            var random = _services.GetRequiredService<Random>();
+
+            if (amount < 1)
+                await RespondAsync("you can't gamble less than 1 corn.");
+            else if (amount > userInfo.CornCount)
+                await RespondAsync("you don't have that much corn.");
+            else
+            {
+                SlotMachine slotMachine = new(3, amount, random);
+
+                var author = new EmbedAuthorBuilder()
+                    .WithIconUrl(Context.User.GetAvatarUrl())
+                    .WithName(Context.User.ToString());
+                var embed = new EmbedBuilder()
+                    .WithTitle($"**Cornucopia**")
+                    .WithDescription(slotMachine.RenderToString())
+                    .WithAuthor(author)
+                    .WithThumbnailUrl(Constants.CORN_THUMBNAIL_URL)
+                    .WithCurrentTimestamp()
+                    .WithColor(Color.Gold);
+
+                await RespondAsync(embeds: new Embed[] { embed.Build() });
+                userInfo.CornCount -= amount;
+                userInfo.CornCount += slotMachine.GetWinnings();
+                await userInfo.Save();
+                while (slotMachine.RevealProgress < slotMachine.Size)
+                {
+                    await Task.Delay(1000);
+                    slotMachine.RevealProgress++;
+                    embed.Description = slotMachine.RenderToString();
+                    await ModifyOriginalResponseAsync(m => m.Embed = embed.Build());
+                }
+
+            }
+        }
+
     }
 }

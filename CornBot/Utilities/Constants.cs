@@ -22,6 +22,9 @@ namespace CornBot.Utilities
         public static readonly string CALENDAR_EMOJI = "\U0001F5D3";
         public static readonly string RAINBOW_EMOJI = "\U0001F308";
         public static readonly string PRIDE_CORN_EMOJI = "<:pridecorn:1113715834439880725>";
+        public static readonly string POPCORN_EMOJI = "\U0001F37F";
+        public static readonly string UNICORN_EMOJI = "\U0001F984";
+        public static readonly string LARGE_BLACK_SQUARE_EMOJI = "\U00002B1B";
 
         public static readonly string CORN_LINK = "https://discordapp.com/oauth2/authorize?client_id=461849775516418059&scope=bot&permissions=0";
         public static readonly string CORN_THUMBNAIL_URL = "https://emuman.net/static/icons/corn.png";
