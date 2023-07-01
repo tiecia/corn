@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Discord;
 
 namespace CornBot.Models
 {
@@ -121,6 +122,15 @@ namespace CornBot.Models
                 if (user != this)
                     await user.Save();
             }
+        }
+
+        public async Task UpdateForGambling(long investment, long returns)
+        {
+            CornCount -= investment;
+            CornCount += returns;
+            await LogAction(UserHistory.ActionType.CORNUCOPIA, -investment);
+            await LogAction(UserHistory.ActionType.CORNUCOPIA, returns);
+            await Save();
         }
 
         public override int GetHashCode()

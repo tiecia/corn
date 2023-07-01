@@ -171,7 +171,7 @@ namespace CornBot.Models
                 var userHistory = await GuildTracker.GetHistory(user.UserId);
 
                 // for statistical significance
-                if (userHistory.GetDailyCount(GuildId) < 5) continue;
+                if (userHistory.GetDailyCount(GuildId) < 15) continue;
 
                 if (bestLuck == null || 
                     userHistory.GetDailyAverage(GuildId) > bestLuck.GetDailyAverage(GuildId))

@@ -84,7 +84,10 @@ namespace CornBot.Models
                 sb.AppendLine();
                 sb.AppendLine();
                 string match = matches == 1 ? "match" : "matches";
-                sb.AppendLine($"### You had {matches:n0} {match} and won {winnings:n0} corn!");
+                if (matches == 0)
+                    sb.AppendLine($"### You had {matches:n0} {match} and won {winnings:n0} corn!");
+                else
+                    sb.AppendLine("You did not have any matches and lost everything.");
             }
             
             return sb.ToString();

@@ -14,7 +14,8 @@ namespace CornBot.Models
         public enum ActionType
         {
             MESSAGE,
-            DAILY
+            DAILY,
+            CORNUCOPIA,
         }
 
         public struct HistoryEntry

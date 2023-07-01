@@ -188,8 +188,7 @@ namespace CornBot.Modules
                     .WithColor(Color.Gold);
 
                 await RespondAsync(embeds: new Embed[] { embed.Build() });
-                userInfo.CornCount -= amount;
-                userInfo.CornCount += slotMachine.GetWinnings();
+                await userInfo.UpdateForGambling(amount, slotMachine.GetWinnings());
                 await userInfo.Save();
                 while (slotMachine.RevealProgress < slotMachine.Size)
                 {
