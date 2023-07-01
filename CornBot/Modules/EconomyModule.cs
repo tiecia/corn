@@ -181,7 +181,6 @@ namespace CornBot.Modules
                     .WithIconUrl(Context.User.GetAvatarUrl())
                     .WithName(Context.User.ToString());
                 var embed = new EmbedBuilder()
-                    .WithTitle($"**Cornucopia**")
                     .WithDescription(slotMachine.RenderToString())
                     .WithAuthor(author)
                     .WithThumbnailUrl(Constants.CORN_THUMBNAIL_URL)
@@ -194,7 +193,7 @@ namespace CornBot.Modules
                 await userInfo.Save();
                 while (slotMachine.RevealProgress < slotMachine.Size)
                 {
-                    await Task.Delay(1000);
+                    await Task.Delay(2000);
                     slotMachine.RevealProgress++;
                     embed.Description = slotMachine.RenderToString();
                     await ModifyOriginalResponseAsync(m => m.Embed = embed.Build());

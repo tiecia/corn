@@ -55,12 +55,14 @@ namespace CornBot.Models
             StringBuilder sb = new();
 
             // header
-            sb.AppendLine($"Bet: {Bet:n0} corn");
+            sb.AppendLine("## **Cornucopia**");
+            sb.AppendLine($"### Bet: {Bet:n0} corn");
             sb.AppendLine();
 
             // slots grid
             for (int row = 0; row < Size; row++)
             {
+                sb.Append("# ");
                 for (int col = 0; col < Size; col++)
                 {
                     if (col >= RevealProgress)
@@ -80,8 +82,9 @@ namespace CornBot.Models
                 int matches = GetMatches();
                 long winnings = GetWinnings();
                 sb.AppendLine();
+                sb.AppendLine();
                 string match = matches == 1 ? "match" : "matches";
-                sb.AppendLine($"You had {matches:n0} {match} and won {winnings:n0} corn!");
+                sb.AppendLine($"### You had {matches:n0} {match} and won {winnings:n0} corn!");
             }
             
             return sb.ToString();
