@@ -1,4 +1,5 @@
 ﻿using CornBot.Utilities;
+using Discord.Rest;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -166,6 +167,14 @@ namespace CornBot.Models
                     Dailies[guildId] = new();
                 return Dailies[guildId].Contains(day);
             }
+        }
+
+        public int GetNumberOfCornucopias(ulong guildId, int day)
+        {
+            // each cornucopia entry is split into two, one for the investment and one for the return.
+            return Entries.Where(e => e.Type == ActionType.CORNUCOPIA &&
+                e.GuildId == guildId &&
+                e.Timestamp.Day == day).Count() / 2;
         }
 
         public override int GetHashCode()

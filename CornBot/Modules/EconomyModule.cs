@@ -167,12 +167,16 @@ namespace CornBot.Modules
         {
             var economy = _services.GetRequiredService<GuildTracker>();
             var userInfo = economy.LookupGuild(Context.Guild).GetUserInfo(Context.User);
+            var userHistory = await economy.GetHistory(userInfo.UserId);
             var random = _services.GetRequiredService<Random>();
+            var timestamp = Utility.GetAdjustedTimestamp();
 
             if (amount < 1)
                 await RespondAsync("you can't gamble less than 1 corn.");
             else if (amount > userInfo.CornCount)
                 await RespondAsync("you don't have that much corn.");
+            else if (userHistory.GetNumberOfCornucopias(userInfo.Guild.GuildId, timestamp.Day) >= 3)
+                await RespondAsync("what are you trying to do, feed your gambling addiction?");
             else
             {
                 SlotMachine slotMachine = new(3, amount, random);

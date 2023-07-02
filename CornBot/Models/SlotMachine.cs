@@ -18,6 +18,19 @@ namespace CornBot.Models
             UNICORN,
         }
 
+        private readonly double[] LINE_MULTIPLIERS =
+        {
+            0.3d,
+            1.2d,
+            1.8d,
+            2.5d,
+            3.7d,
+            5.0d,
+            6.0d,
+            7.0d,
+            8.0d,
+        };
+
         public int Size { get; private set; }
         public int RevealProgress { get; set; }
         public long Bet { get; private set; }
@@ -83,11 +96,14 @@ namespace CornBot.Models
                 long winnings = GetWinnings();
                 sb.AppendLine();
                 sb.AppendLine();
-                string match = matches == 1 ? "match" : "matches";
-                if (matches > 0)
-                    sb.AppendLine($"### You had {matches:n0} {match} and won {winnings:n0} corn!");
+                string lineStr = matches == 1 ? "line" : "lines";
+                long absDifference = Math.Abs(winnings - Bet);
+                if (winnings == Bet)
+                    sb.AppendLine($"### You had {matches:n0} {lineStr} and your corn remained the same.");
+                else if (winnings < Bet)
+                    sb.AppendLine($"### You had {matches:n0} {lineStr} and lost {absDifference:n0} corn.");
                 else
-                    sb.AppendLine("### You did not have any matches and lost everything.");
+                    sb.AppendLine($"### You had {matches:n0} {lineStr} and won {absDifference:n0} corn!");
             }
             
             return sb.ToString();
@@ -150,7 +166,7 @@ namespace CornBot.Models
         // get the winnings for the current board
         public long GetWinnings()
         {
-            return GetMatches() * Bet;
+            return (long) Math.Round(LINE_MULTIPLIERS[GetMatches()] * Bet);
         }
 
     }
