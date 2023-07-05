@@ -176,11 +176,11 @@ namespace CornBot.Models
             double multiplier = 0.0;
             var matches = GetMatches();
 
-            multiplier += matches[BoxValue.CORN] * 4.0;
+            multiplier += matches[BoxValue.CORN] * 3.0;
             multiplier += matches[BoxValue.UNICORN];
             multiplier += matches[BoxValue.POPCORN] * 0.5;
 
-            multiplier = 0.2 + multiplier * 1.1;
+            multiplier = 0.2 + multiplier * 0.9;
 
             return (long) Math.Round(multiplier * Bet);
         }
