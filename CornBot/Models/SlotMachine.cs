@@ -18,25 +18,12 @@ namespace CornBot.Models
             UNICORN,
         }
 
-        private readonly double[] LINE_MULTIPLIERS =
-        {
-            0.3d,
-            1.2d,
-            1.8d,
-            2.5d,
-            3.7d,
-            5.0d,
-            6.0d,
-            7.0d,
-            8.0d,
-        };
-
         public int Size { get; private set; }
         public int RevealProgress { get; set; }
         public long Bet { get; private set; }
 
-        private Random random;
-        private BoxValue[][] grid;
+        private readonly Random random;
+        private readonly BoxValue[][] grid;
         
 
         public SlotMachine(int size, long bet, Random random)
@@ -57,18 +44,32 @@ namespace CornBot.Models
                 grid[y] = new BoxValue[Size];
                 for (int x = 0; x < Size; x++)
                 {
-                    grid[y][x] = (BoxValue)(values?.GetValue(random.Next(1, values.Length)) ?? default(BoxValue));
+                    switch (random.Next(0, 6))
+                    {
+                        case 0:
+                            grid[y][x] = BoxValue.CORN;
+                            break;
+                        case 1:
+                        case 2:
+                            grid[y][x] = BoxValue.UNICORN;
+                            break;
+                        case 3:
+                        case 4:
+                        case 5:
+                            grid[y][x] = BoxValue.POPCORN;
+                            break;
+                    }
                 }
 
             }
         }
 
-        public string RenderToString()
+        public string RenderToString(long newCorn, int numberInDay)
         {
             StringBuilder sb = new();
 
             // header
-            sb.AppendLine("## **Cornucopia**");
+            sb.AppendLine($"## **Cornucopia** ({numberInDay + 1}/3)");
             sb.AppendLine($"### Bet: {Bet:n0} corn");
             sb.AppendLine();
 
@@ -92,7 +93,8 @@ namespace CornBot.Models
             // footer if all the board has been revealed
             if (RevealProgress == Size)
             {
-                int matches = GetMatches();
+                int matches = GetMatches().Values.Sum();
+
                 long winnings = GetWinnings();
                 sb.AppendLine();
                 sb.AppendLine();
@@ -104,6 +106,8 @@ namespace CornBot.Models
                     sb.AppendLine($"### You had {matches:n0} {lineStr} and lost {absDifference:n0} corn.");
                 else
                     sb.AppendLine($"### You had {matches:n0} {lineStr} and won {absDifference:n0} corn!");
+                sb.AppendLine();
+                sb.AppendLine($"**You now have {newCorn} corn.**");
             }
             
             return sb.ToString();
@@ -123,16 +127,19 @@ namespace CornBot.Models
         }
 
         // a function that returns the number of rows, columns, and diagonals that have the same box value
-        private int GetMatches()
+        private Dictionary<BoxValue, int> GetMatches()
         {
-            int matches = 0;
+            Dictionary<BoxValue, int> matches = new();
+            matches[BoxValue.CORN] = 0;
+            matches[BoxValue.UNICORN] = 0;
+            matches[BoxValue.POPCORN] = 0;
 
             // check rows
             foreach (var row in grid)
             {
                 if (row.All(box => box == row[0]))
                 {
-                    matches++;
+                    matches[row[0]]++;
                 }
             }
 
@@ -141,7 +148,7 @@ namespace CornBot.Models
             {
                 if (grid.All(row => row[col] == grid[0][col]))
                 {
-                    matches++;
+                    matches[grid[0][col]]++;
                 }
             }
 
@@ -156,9 +163,9 @@ namespace CornBot.Models
                     forwardDiagMatch = false;
             }
             if (backDiagMatch)
-                matches++;
+                matches[grid[0][0]]++;
             if (forwardDiagMatch)
-                matches++;
+                matches[grid[0][Size - 1]]++;
 
             return matches;
         }
@@ -166,7 +173,16 @@ namespace CornBot.Models
         // get the winnings for the current board
         public long GetWinnings()
         {
-            return (long) Math.Round(LINE_MULTIPLIERS[GetMatches()] * Bet);
+            double multiplier = 0.0;
+            var matches = GetMatches();
+
+            multiplier += matches[BoxValue.CORN] * 4.0;
+            multiplier += matches[BoxValue.UNICORN];
+            multiplier += matches[BoxValue.POPCORN] * 0.5;
+
+            multiplier = 0.2 + multiplier * 1.1;
+
+            return (long) Math.Round(multiplier * Bet);
         }
 
     }

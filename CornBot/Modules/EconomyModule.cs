@@ -170,12 +170,13 @@ namespace CornBot.Modules
             var userHistory = await economy.GetHistory(userInfo.UserId);
             var random = _services.GetRequiredService<Random>();
             var timestamp = Utility.GetAdjustedTimestamp();
+            var numberInDay = userHistory.GetNumberOfCornucopias(userInfo.Guild.GuildId, timestamp.Day);
 
             if (amount < 1)
                 await RespondAsync("you can't gamble less than 1 corn.");
             else if (amount > userInfo.CornCount)
                 await RespondAsync("you don't have that much corn.");
-            else if (userHistory.GetNumberOfCornucopias(userInfo.Guild.GuildId, timestamp.Day) >= 3)
+            else if (numberInDay >= 3)
                 await RespondAsync("what are you trying to do, feed your gambling addiction?");
             else
             {
@@ -185,7 +186,7 @@ namespace CornBot.Modules
                     .WithIconUrl(Context.User.GetAvatarUrl())
                     .WithName(Context.User.ToString());
                 var embed = new EmbedBuilder()
-                    .WithDescription(slotMachine.RenderToString())
+                    .WithDescription(slotMachine.RenderToString(0, numberInDay))
                     .WithAuthor(author)
                     .WithThumbnailUrl(Constants.CORN_THUMBNAIL_URL)
                     .WithCurrentTimestamp()
@@ -198,7 +199,7 @@ namespace CornBot.Modules
                 {
                     await Task.Delay(2000);
                     slotMachine.RevealProgress++;
-                    embed.Description = slotMachine.RenderToString();
+                    embed.Description = slotMachine.RenderToString(userInfo.CornCount, numberInDay);
                     await ModifyOriginalResponseAsync(m => m.Embed = embed.Build());
                 }
 
