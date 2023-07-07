@@ -44,7 +44,7 @@ namespace CornBot.Models
                 grid[y] = new BoxValue[Size];
                 for (int x = 0; x < Size; x++)
                 {
-                    switch (random.Next(0, 6))
+                    switch (random.Next(0, 5))
                     {
                         case 0:
                             grid[y][x] = BoxValue.CORN;
@@ -55,7 +55,6 @@ namespace CornBot.Models
                             break;
                         case 3:
                         case 4:
-                        case 5:
                             grid[y][x] = BoxValue.POPCORN;
                             break;
                     }
@@ -178,7 +177,7 @@ namespace CornBot.Models
 
             multiplier += matches[BoxValue.CORN] * 3.0;
             multiplier += matches[BoxValue.UNICORN];
-            multiplier += matches[BoxValue.POPCORN] * 0.5;
+            multiplier += matches[BoxValue.POPCORN];
 
             multiplier = 0.2 + multiplier * 0.9;
 
