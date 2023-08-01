@@ -141,8 +141,14 @@ namespace CornBot.Modules
                     .WithValue(economy.GetTotalCorn(user).ToString("n0"))
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
-                    .WithName("Cornucopia Returns")
-                    .WithValue($"{history.GetCornucopiaReturns(guildInfo.GuildId):n0}")
+                    .WithName("Cornucopia Net Gain")
+                    .WithValue($"{history.GetCornucopiaReturns(guildInfo.GuildId):n0} " +
+                        $"({history.GetGlobalCornucopiaReturns():n0})")
+                    .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Cornucopia Percent")
+                    .WithValue($"{history.GetCornucopiaPercent(guildInfo.GuildId)*100.0:n2} " +
+                        $"({history.GetGlobalCornucopiaPercent()*100.0:n2})")
                     .WithIsInline(true),
             };
 
