@@ -214,7 +214,7 @@ namespace CornBot.Models
             if (investments == 0)
                 return 0;
             else
-                return (float)returns / investments;
+                return (float)returns / investments - 1.0f;
         }
 
         public float GetGlobalCornucopiaPercent()

@@ -256,13 +256,13 @@ namespace CornBot.Models
             if (bestGamblingName != null && bestGambling != null)
             {
                 response.AppendLine($"The best gambler in the server was {bestGamblingName} with a return of " +
-                    $"{bestGambling.GetCornucopiaReturns(GuildId):n0} ({bestGambling.GetCornucopiaPercent(GuildId):n2})!");
+                    $"{bestGambling.GetCornucopiaReturns(GuildId):n0} ({bestGambling.GetCornucopiaPercent(GuildId)*100.0:n2}%)!");
                 response.AppendLine($"");
             }
             if (worstGamblingName != null && worstGambling != null)
             {
                 response.AppendLine($"Unfortunately, there was also {worstGamblingName} with a return of " +
-                    $"{worstGambling.GetCornucopiaReturns(GuildId):n0} ({worstGambling.GetCornucopiaPercent(GuildId):n2}).");
+                    $"{worstGambling.GetCornucopiaReturns(GuildId):n0} ({worstGambling.GetCornucopiaPercent(GuildId)*100.0:n2}%).");
             }
 
             var embed = new EmbedBuilder()

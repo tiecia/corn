@@ -147,8 +147,8 @@ namespace CornBot.Modules
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Cornucopia Percent")
-                    .WithValue($"{history.GetCornucopiaPercent(guildInfo.GuildId)*100.0:n2} " +
-                        $"({history.GetGlobalCornucopiaPercent()*100.0:n2})")
+                    .WithValue($"{history.GetCornucopiaPercent(guildInfo.GuildId)*100.0:n2}% " +
+                        $"({history.GetGlobalCornucopiaPercent()*100.0:n2}%)")
                     .WithIsInline(true),
             };
 
