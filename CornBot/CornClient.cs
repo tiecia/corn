@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SixLabors.Fonts;
+using Discord.Rest;
 
 namespace CornBot
 {
@@ -51,6 +52,7 @@ namespace CornBot
                 .AddSingleton<InteractionHandler>()
                 .AddSingleton<ImageManipulator>()
                 .AddSingleton<ImageStore>()
+                .AddSingleton<CornAPI>()
                 .BuildServiceProvider();
         }
 
@@ -81,7 +83,8 @@ namespace CornBot
             await client.LoginAsync(TokenType.Bot, _configuration["discord_token"]);
             await client.StartAsync();
 
-            await Task.Delay(Timeout.Infinite);
+            var api = _services.GetRequiredService<CornAPI>();
+            await api.RunAsync(); // Does not return
         }
 
         public Task Log(LogMessage msg)
