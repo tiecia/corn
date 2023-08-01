@@ -5,5 +5,5 @@ using CornBot.Utilities;
 SimpleRNG.SetSeedFromSystemTime();
 
 var client = new CornClient();
-await client.MainAsync();
 
+await client.MainAsync();
