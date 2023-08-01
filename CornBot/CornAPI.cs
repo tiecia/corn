@@ -37,9 +37,18 @@ namespace CornBot {
 
             app.UseHttpsRedirection();
 
+
+
+            // Gets if a user has done all their dailies
+            // GET http://{baseurl}/shuckstatus?user={username}
             app.MapGet("/shuckstatus", (HttpContext context) =>
             {
                 string? queryUser = context.Request.Query["user"];
+                if(queryUser == null)
+                {
+                    context.Response.StatusCode = 400;
+                    return false;
+                }
                 var economy = _services.GetRequiredService<GuildTracker>();
                 int dailyCount = 0;
                 foreach (var guild in economy.Guilds.Values)
@@ -62,6 +71,53 @@ namespace CornBot {
                 {
                     return false;
                 }
+            });
+
+            // Gets the users total corn in a guild, or all guilds if no guild is given
+            // GET http://{baseurl}/corncount?user={username}
+            // GET http://{baseurl}/shuckstatus?user={username}&guild={guildid}
+            app.MapGet("/corncount", (HttpContext context) =>
+            {
+                string? queryUser = context.Request.Query["user"];
+                string? queryGuild = context.Request.Query["guild"];
+
+                if(queryUser == null)
+                {
+                    context.Response.StatusCode = 400;
+                    return 0;
+                }
+
+                var economy = _services.GetRequiredService<GuildTracker>();
+                long cornCount = 0;
+                if(queryGuild == null)
+                {
+                    foreach (var guild in economy.Guilds.Values)
+                    {
+                        foreach (var user in guild.Users.Values)
+                        {
+                            if(user.Username == queryUser)
+                            {
+                                cornCount += user.CornCount;
+                            }
+                        }
+                    }
+                } else
+                {
+                    foreach (var guild in economy.Guilds.Values)
+                    {
+                        if(guild.GuildId == ulong.Parse(queryGuild))
+                        {
+                            foreach (var user in guild.Users.Values)
+                            {
+                                if (user.Username == queryUser)
+                                {
+                                    return user.CornCount;
+                                }
+                            }
+                        }
+                    }
+                }
+                return cornCount;
             });
 
             await app.RunAsync();
