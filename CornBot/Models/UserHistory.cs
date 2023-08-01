@@ -177,6 +177,14 @@ namespace CornBot.Models
                 e.Timestamp.Day == day).Count() / 2;
         }
 
+        public long GetCornucopiaReturns(ulong guildId)
+        {
+            return Entries.Where(e => e.Type == ActionType.CORNUCOPIA &&
+                e.GuildId == guildId &&
+                e.Value > 0)
+                .Sum(e => e.Value);
+        }
+
         public override int GetHashCode()
         {
             return HashCode.Combine(UserId, Entries);

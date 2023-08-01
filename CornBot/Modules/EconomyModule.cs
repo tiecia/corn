@@ -140,6 +140,10 @@ namespace CornBot.Modules
                     .WithName("Global Total")
                     .WithValue(economy.GetTotalCorn(user).ToString("n0"))
                     .WithIsInline(true),
+                new EmbedFieldBuilder()
+                    .WithName("Cornucopia Returns")
+                    .WithValue($"{history.GetCornucopiaReturns(guildInfo.GuildId):n0}")
+                    .WithIsInline(true),
             };
 
             var displayName = user is SocketGuildUser guildUser ? guildUser.DisplayName : user.Username;

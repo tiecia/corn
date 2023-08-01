@@ -161,10 +161,14 @@ namespace CornBot.Models
             var serverShucks = GetTotalCorn();
             var globalShucks = GuildTracker.GetTotalCorn();
 
-            UserHistory? bestLuck = null;
-            string? bestLuckName = null;
-            UserHistory? worstLuck = null;
-            string? worstLuckName = null;
+            UserHistory? bestDaily = null;
+            string? bestDailyName = null;
+            UserHistory? worstDaily = null;
+            string? worstDailyName = null;
+            UserHistory? bestGambling = null;
+            string? bestGamblingName = null;
+            UserHistory? worstGambling = null;
+            string? worstGamblingName = null;
 
             foreach (UserInfo user in Users.Values)
             {
@@ -173,32 +177,62 @@ namespace CornBot.Models
                 // for statistical significance
                 if (userHistory.GetDailyCount(GuildId) < 15) continue;
 
-                if (bestLuck == null || 
-                    userHistory.GetDailyAverage(GuildId) > bestLuck.GetDailyAverage(GuildId))
+                if (bestDaily == null || 
+                    userHistory.GetDailyAverage(GuildId) > bestDaily.GetDailyAverage(GuildId))
                 {
                     IUser userObj = guild?.GetUser(user.UserId) ?? await client.GetUserAsync(user.UserId);
                     if (userObj != null)
                     {
-                        bestLuck = userHistory;
-                        bestLuckName = userObj is not SocketGuildUser guildUser ?
+                        bestDaily = userHistory;
+                        bestDailyName = userObj is not SocketGuildUser guildUser ?
                             user.ToString() :
                             $"{guildUser.DisplayName} ({guildUser})";
                     }
                 }
 
-                if (worstLuck == null ||
-                    userHistory.GetDailyAverage(GuildId) < worstLuck.GetDailyAverage(GuildId))
+                if (worstDaily == null ||
+                    userHistory.GetDailyAverage(GuildId) < worstDaily.GetDailyAverage(GuildId))
                 {
                     // TODO: remove nasty copied code
                     IUser userObj = guild?.GetUser(user.UserId) ?? await client.GetUserAsync(user.UserId);
                     if (userObj != null)
                     {
-                        worstLuck = userHistory;
-                        worstLuckName = userObj is not SocketGuildUser guildUser ?
+                        worstDaily = userHistory;
+                        worstDailyName = userObj is not SocketGuildUser guildUser ?
                             user.ToString() :
                             $"{guildUser.DisplayName} ({guildUser})";
                     }
                 }
+
+                if (bestGambling == null ||
+                    userHistory.GetCornucopiaReturns(GuildId) > bestGambling.GetCornucopiaReturns(GuildId))
+                {
+                    // TODO: remove nasty copied code
+                    IUser userObj = guild?.GetUser(user.UserId) ?? await client.GetUserAsync(user.UserId);
+                    if (userObj != null)
+                    {
+                        bestGambling = userHistory;
+                        bestGamblingName = userObj is not SocketGuildUser guildUser ?
+                            user.ToString() :
+                            $"{guildUser.DisplayName} ({guildUser})";
+                    }
+                }
+
+                if (worstGambling == null ||
+                    userHistory.GetCornucopiaReturns(GuildId) < worstGambling.GetCornucopiaReturns(GuildId))
+                {
+                    // TODO: remove nasty copied code
+                    IUser userObj = guild?.GetUser(user.UserId) ?? await client.GetUserAsync(user.UserId);
+                    if (userObj != null)
+                    {
+                        worstGambling = userHistory;
+                        worstGamblingName = userObj is not SocketGuildUser guildUser ?
+                            user.ToString() :
+                            $"{guildUser.DisplayName} ({guildUser})";
+                    }
+                }
+
+
             }
 
             var response = new StringBuilder();
@@ -206,14 +240,14 @@ namespace CornBot.Models
             response.AppendLine($"");
             response.AppendLine($"Top 3 shuckers:");
             response.AppendLine(leaderboards);
-            if (bestLuckName != null && bestLuck != null)
+            if (bestDailyName != null && bestDaily != null)
             {
-                response.AppendLine($"The most lucky shucker in the server was {bestLuckName} with a daily average of {bestLuck.GetDailyAverage(GuildId):n2}!");
+                response.AppendLine($"The most lucky shucker in the server was {bestDailyName} with a daily average of {bestDaily.GetDailyAverage(GuildId):n2}!");
                 response.AppendLine($"");
             }
-            if (worstLuckName != null && worstLuck != null)
+            if (worstDailyName != null && worstDaily != null)
             {
-                response.AppendLine($"Unfortunately, there was also {worstLuckName} with a daily average of {worstLuck.GetDailyAverage(GuildId):n2}.");
+                response.AppendLine($"Unfortunately, there was also {worstDailyName} with a daily average of {worstDaily.GetDailyAverage(GuildId):n2}.");
             }
 
             var embed = new EmbedBuilder()
