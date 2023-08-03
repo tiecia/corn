@@ -61,14 +61,14 @@ namespace CornBot {
                 {
                     Username = queryUser,
                     CornCount = GetCornCount(queryUser, queryGuild),
-                    ShuckStatus = GetShuckStatus(queryUser)
+                    ShuckStatus = GetShuckStatus(queryUser, queryGuild)
                 });
             });
 
             await app.RunAsync();
         }
 
-        private bool GetShuckStatus(string queryUser)
+        private bool GetShuckStatus(string queryUser, string? queryGuild)
         {
             var economy = _services.GetRequiredService<GuildTracker>();
             int dailyCount = 0;
@@ -82,12 +82,16 @@ namespace CornBot {
                     }
                     else if (user.Username == queryUser && user.HasClaimedDaily)
                     {
+                        if(queryGuild != null && guild.GuildId == ulong.Parse(queryGuild))
+                        {
+                            return true;
+                        }
                         dailyCount++;
                     }
                 }
             }
 
-            if (dailyCount == economy.Guilds.Count())
+            if (dailyCount == economy.Guilds.Count && queryGuild == null)
             {
                 return true;
             }
