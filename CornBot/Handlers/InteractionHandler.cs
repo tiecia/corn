@@ -41,12 +41,12 @@ namespace CornBot.Handlers
 
         private async Task ReadyAsync()
         {
-#if DEBUG
-            await _handler.RegisterCommandsToGuildAsync(_configuration.GetValue<ulong>("guild"), true);
-#else
-            await _client.GetGuild(_configuration.GetValue<ulong>("guild")).DeleteApplicationCommandsAsync();
+//#if DEBUG
+            //await _handler.RegisterCommandsToGuildAsync(_configuration.GetValue<ulong>("guild"), true);
+//#else
+            //await _client.GetGuild(_configuration.GetValue<ulong>("guild")).DeleteApplicationCommandsAsync();
             await _handler.RegisterCommandsGloballyAsync();
-#endif
+//#endif
         }
 
         private async Task HandleInteraction(SocketInteraction interaction)

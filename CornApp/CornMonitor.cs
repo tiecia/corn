@@ -36,6 +36,8 @@ namespace CornApp {
         private string userFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "user.txt");
         private FileStream userFile;
 
+        private HttpClient httpClient;
+
         public CornMonitor() {
             Singleton = this;
 
@@ -48,24 +50,31 @@ namespace CornApp {
 
             userFile = File.Open(userFilePath, FileMode.OpenOrCreate, FileAccess.Write);
 
+            httpClient = new HttpClient(new SocketsHttpHandler()
+            {
+                ConnectTimeout = TimeSpan.FromSeconds(10),
+            });
 
             CornMonitorInitialized?.Invoke(null, null);
         }
 
         public async Task<ShuckerInfo> GetShuckerInfoAsync() {
-            var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync($"{API_URI}/shuckerinfo?user={User}");
-            if (response.IsSuccessStatusCode) {
-                return await response.Content.ReadFromJsonAsync<ShuckerInfo>();
-            } else {
-                return null;
-            }
+            return await GetShuckerInfoAsync(-1);
         }
 
         public async Task<ShuckerInfo> GetShuckerInfoAsync(int guildId)
         {
-            var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync($"{API_URI}/shuckerinfo?user={User}&guild={guildId}");
+            httpClient.CancelPendingRequests();
+            HttpResponseMessage response;
+            if(guildId == -1)
+            {
+                response = await httpClient.GetAsync($"{API_URI}/shuckerinfo?user={User}");
+            }
+            else
+            {
+                response = await httpClient.GetAsync($"{API_URI}/shuckerinfo?user={User}&guild={guildId}");
+            }
+
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<ShuckerInfo>();

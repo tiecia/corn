@@ -2,6 +2,7 @@
 using Android.Appwidget;
 using Android.Content;
 using Android.Text.Style;
+using Android.Views;
 using Android.Widget;
 using System;
 using System.Collections.Generic;
@@ -31,9 +32,31 @@ namespace CornApp.Platforms.Android {
 
             foreach (int id in widgetIds) {
                 RemoteViews remoteViews = new RemoteViews(context.PackageName, Resource.Layout.DailyWidget);
-                //remoteViews.SetTextViewText(Resource.Id.statusText, "Status: " + (await CornMonitor.Singleton.GetShuckerInfoAsync()).ShuckStatus);
-                //remoteViews.SetImageViewResource();
-                appWidgetManager.UpdateAppWidget(id, remoteViews);
+
+                if(CornMonitor.Singleton.User == "")
+                {
+                    remoteViews.SetTextViewText(Resource.Id.textView, "No user");
+                    remoteViews.SetViewVisibility(Resource.Id.textView, ViewStates.Visible);
+                    remoteViews.SetViewVisibility(Resource.Id.cornView, ViewStates.Invisible);
+                } else {
+                    remoteViews.SetViewVisibility(Resource.Id.textView, ViewStates.Invisible);
+                    remoteViews.SetViewVisibility(Resource.Id.cornView, ViewStates.Visible);
+                    try
+                    {
+                        bool shuckStatus = (await CornMonitor.Singleton.GetShuckerInfoAsync()).ShuckStatus;
+                        if(shuckStatus)
+                        {
+                            remoteViews.SetImageViewResource(Resource.Id.cornView, Resource.Drawable.corn);
+                        } else
+                        {
+                            remoteViews.SetImageViewResource(Resource.Id.cornView, Resource.Drawable.redcorn);
+                        }
+                    } catch (TaskCanceledException ex)
+                    {
+                        Console.WriteLine("GetShuckerInfoAsync() Timeout");
+                    }
+                    appWidgetManager.UpdateAppWidget(id, remoteViews);
+                }
             }
         }
 

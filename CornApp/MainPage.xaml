@@ -12,31 +12,32 @@
             VerticalOptions="Center">
 
             <Image
-                Source="dotnet_bot.png"
-                SemanticProperties.Description="Cute dot net bot waving hi to you!"
+                Source="{Binding CornImage}"
+                SemanticProperties.Description="Corn!"
                 HeightRequest="200"
                 HorizontalOptions="Center" />
 
             <Label
-                Text="Corn Monitoring Tool"
+                Text="Shuck Status Tool"
                 SemanticProperties.HeadingLevel="Level1"
                 FontSize="32"
                 HorizontalOptions="Center" />
 
             <Label
-                Text="This tool will display the current status of your daily shucks."
+                Text="Enter a Discord username:"
                 SemanticProperties.HeadingLevel="Level2"
-                FontSize="18"
-                HorizontalOptions="Center" />
+                FontSize="16"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"/>
 
-            <Entry Text="{Binding User}" Placeholder="Enter a discord username"/>
+            <Entry Text="{Binding User}" Placeholder="Discord Username"/>
 
             <Button
                 Text="Confirm"
                 Clicked="OnConfirmClicked"
                 HorizontalOptions="Center" />
 
-            <Label Text="{Binding StatusText}" HorizontalOptions="Center"/>
+            <Label Margin="0,20,0,0" FontSize="20" Text="{Binding StatusText}" HorizontalOptions="Center"/>
 
         </VerticalStackLayout>
     </ScrollView>
