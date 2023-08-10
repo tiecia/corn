@@ -48,7 +48,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Platforms\Android\Resources\drawable\cloudoff.png" />
 	  <None Remove="Platforms\Android\Resources\drawable\corn.png" />
+	  <None Remove="Platforms\Android\Resources\drawable\nouser.png" />
 	  <None Remove="Platforms\Android\Resources\drawable\redcorn.png" />
 	  <None Remove="Resources\AppIcon\corn.png" />
 	  <None Remove="Resources\Images\corn.png" />

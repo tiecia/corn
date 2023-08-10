@@ -50,7 +50,10 @@ public partial class MainPage : ContentPage
 	}
 
     private async void UpdateShuckStatusAsync() {
-        ShuckStatus = (await CornMonitor.Singleton.GetShuckerInfoAsync()).ShuckStatus;
+        var info = await CornMonitor.Singleton.GetShuckerInfoAsync();
+        if(info != null) {
+            ShuckStatus = info.ShuckStatus;
+        }
     }
 }
 

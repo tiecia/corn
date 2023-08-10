@@ -50,10 +50,8 @@ namespace CornApp {
 
             userFile = File.Open(userFilePath, FileMode.OpenOrCreate, FileAccess.Write);
 
-            httpClient = new HttpClient(new SocketsHttpHandler()
-            {
-                ConnectTimeout = TimeSpan.FromSeconds(10),
-            });
+            httpClient = new HttpClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(5);
 
             CornMonitorInitialized?.Invoke(null, null);
         }
@@ -66,13 +64,18 @@ namespace CornApp {
         {
             httpClient.CancelPendingRequests();
             HttpResponseMessage response;
-            if(guildId == -1)
-            {
-                response = await httpClient.GetAsync($"{API_URI}/shuckerinfo?user={User}");
-            }
-            else
-            {
-                response = await httpClient.GetAsync($"{API_URI}/shuckerinfo?user={User}&guild={guildId}");
+            try {
+                if(guildId == -1)
+                {
+                    response = await httpClient.GetAsync($"{API_URI}/shuckerinfo?user={User}");
+                }
+                else
+                {
+                    response = await httpClient.GetAsync($"{API_URI}/shuckerinfo?user={User}&guild={guildId}");
+                }
+            } catch (Exception e) {
+                Console.WriteLine("Request failed: " + e.Message);
+                return null;
             }
 
             if (response.IsSuccessStatusCode)

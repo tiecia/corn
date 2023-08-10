@@ -22,7 +22,6 @@ namespace CornApp.Platforms.Android {
     public class DailyWidget : AppWidgetProvider {
         public override void OnUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
             UpdateWidgetAsync(context);
-            Debug.WriteLine("OnUpdate");
         }
 
         public static async void UpdateWidgetAsync(Context context) {
@@ -33,37 +32,57 @@ namespace CornApp.Platforms.Android {
             foreach (int id in widgetIds) {
                 RemoteViews remoteViews = new RemoteViews(context.PackageName, Resource.Layout.DailyWidget);
 
-                if(CornMonitor.Singleton.User == "")
-                {
-                    remoteViews.SetTextViewText(Resource.Id.textView, "No user");
-                    remoteViews.SetViewVisibility(Resource.Id.textView, ViewStates.Visible);
-                    remoteViews.SetViewVisibility(Resource.Id.cornView, ViewStates.Invisible);
+                if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet) {
+                    SetNoConnection(remoteViews);
+                } else if (CornMonitor.Singleton.User == "") {
+                    SetNoUser(remoteViews);
                 } else {
-                    remoteViews.SetViewVisibility(Resource.Id.textView, ViewStates.Invisible);
-                    remoteViews.SetViewVisibility(Resource.Id.cornView, ViewStates.Visible);
-                    try
-                    {
-                        bool shuckStatus = (await CornMonitor.Singleton.GetShuckerInfoAsync()).ShuckStatus;
-                        if(shuckStatus)
-                        {
-                            remoteViews.SetImageViewResource(Resource.Id.cornView, Resource.Drawable.corn);
-                        } else
-                        {
-                            remoteViews.SetImageViewResource(Resource.Id.cornView, Resource.Drawable.redcorn);
+                    var info = await CornMonitor.Singleton.GetShuckerInfoAsync();
+                    if (info != null) {
+                        bool shuckStatus = info.ShuckStatus;
+                        if (shuckStatus) {
+                            SetYellowCorn(remoteViews);
+                        } else {
+                            SetRedCorn(remoteViews);
                         }
-                    } catch (TaskCanceledException ex)
-                    {
-                        Console.WriteLine("GetShuckerInfoAsync() Timeout");
+                    } else {
+                        SetNoServer(remoteViews);
                     }
-                    appWidgetManager.UpdateAppWidget(id, remoteViews);
                 }
+                appWidgetManager.UpdateAppWidget(id, remoteViews);
             }
         }
 
-        public override void OnReceive(Context context, Intent intent) {
-            base.OnReceive(context, intent);
-            Debug.WriteLine("OnReceive " + intent.Action);
+        private static void SetRedCorn(RemoteViews remoteViews) {
+            remoteViews.SetViewVisibility(Resource.Id.textView, ViewStates.Invisible);
+            remoteViews.SetViewVisibility(Resource.Id.cornView, ViewStates.Visible);
+            remoteViews.SetImageViewResource(Resource.Id.cornView, Resource.Drawable.redcorn);
         }
 
+        private static void SetYellowCorn(RemoteViews remoteViews) {
+            remoteViews.SetViewVisibility(Resource.Id.textView, ViewStates.Invisible);
+            remoteViews.SetViewVisibility(Resource.Id.cornView, ViewStates.Visible);
+            remoteViews.SetImageViewResource(Resource.Id.cornView, Resource.Drawable.corn);
+        }
+
+        private static void SetNoConnection(RemoteViews remoteViews) {
+            remoteViews.SetViewVisibility(Resource.Id.textView, ViewStates.Visible);
+            remoteViews.SetViewVisibility(Resource.Id.cornView, ViewStates.Visible);
+            remoteViews.SetTextViewText(Resource.Id.textView, "No internet");
+            remoteViews.SetImageViewResource(Resource.Id.cornView, Resource.Drawable.cloudoff);
+        }
+
+        private static void SetNoUser(RemoteViews remoteViews) {
+            remoteViews.SetViewVisibility(Resource.Id.textView, ViewStates.Invisible);
+            remoteViews.SetViewVisibility(Resource.Id.cornView, ViewStates.Visible);
+            remoteViews.SetImageViewResource(Resource.Id.cornView, Resource.Drawable.nouser);
+        }   
+
+        private static void SetNoServer(RemoteViews remoteViews) {
+            remoteViews.SetViewVisibility(Resource.Id.textView, ViewStates.Visible);
+            remoteViews.SetViewVisibility(Resource.Id.cornView, ViewStates.Visible);
+            remoteViews.SetTextViewText(Resource.Id.textView, "No server");
+            remoteViews.SetImageViewResource(Resource.Id.cornView, Resource.Drawable.cloudoff);
+        }
     }
 }

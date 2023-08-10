@@ -10,6 +10,7 @@ namespace CornApp.WinUI
     /// </summary>
     public partial class App : MauiWinUIApplication
     {
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -17,6 +18,8 @@ namespace CornApp.WinUI
         public App()
         {
             this.InitializeComponent();
+
+            var cornMonitor = new CornMonitor();
         }
 
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
