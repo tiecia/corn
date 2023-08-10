@@ -50,7 +50,7 @@ namespace CornBot.Models
             _services = services;
 
             var restClient = new DiscordRestClient();
-            restClient.LoginAsync(TokenType.Bot, _services.GetRequiredService<IConfiguration>()["discord_token"]).Wait();
+            restClient.LoginAsync(TokenType.Bot, CornClient.BOT_KEY).Wait();
             Username = restClient.GetUserAsync(userId).Result.Username;
 
         }
