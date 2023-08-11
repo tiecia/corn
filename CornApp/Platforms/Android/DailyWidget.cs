@@ -7,7 +7,7 @@ using Intent = Android.Content.Intent;
 
 namespace CornApp.Platforms.Android {
     // Add Exported = true for your app to run as expected in Android 12 and above.
-    [BroadcastReceiver(Label = "Corn Status", Exported = true)]
+    [BroadcastReceiver(Label = "Shuck Status", Exported = true)]
     [IntentFilter(new string[] { "android.appwidget.action.APPWIDGET_UPDATE" })]
     [MetaData("android.appwidget.provider", Resource = "@xml/appwidgetprovider")]
     [Service(Exported = true)]
