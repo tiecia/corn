@@ -17,10 +17,10 @@ namespace CornApp {
 
         public static event EventHandler CornMonitorInitialized;
 
-        private const string API_HOST = "10.0.2.2:5000";
-        private const string API_URI = $"http://{API_HOST}";
+        private const string API_HOST = "cornbotdev.azurewebsites.net";
+        private const string API_URI = $"https://{API_HOST}";
 
-        private string _user = "tiec";
+        private string _user = "";
         public string User { 
             get => _user;
             set {
@@ -62,6 +62,10 @@ namespace CornApp {
 
         public async Task<ShuckerInfo> GetShuckerInfoAsync(int guildId)
         {
+            if(User == "" || User == null) {
+                return null;
+            }
+
             httpClient.CancelPendingRequests();
             HttpResponseMessage response;
             try {

@@ -40,11 +40,12 @@ namespace CornApp.Platforms.Android {
             StartForeground((SERVICE_RUNNING_NOTIFICATION_ID + System.DateTime.Now.Second % 10000), notification);
             base.OnStartCommand(intent, flags, startId);
 
-            CornMonitor = new CornMonitor();
+            if(CornMonitor == null) {
+                CornMonitor = new CornMonitor();
+            }
 
-            if(UpdateTimer == null) {
+            if (UpdateTimer == null) {
                 UpdateTimer = new Timer((object state) => {
-                    Console.WriteLine("Update");
                     DailyWidget.UpdateWidgetAsync(ApplicationContext);
                 }, null, 0, 5000);
             }

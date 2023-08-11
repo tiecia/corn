@@ -18,8 +18,6 @@ namespace CornApp.WinUI
         public App()
         {
             this.InitializeComponent();
-
-            var cornMonitor = new CornMonitor();
         }
 
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();

@@ -1,4 +1,4 @@
-﻿namespace CornApp;
+namespace CornApp;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
@@ -33,7 +33,14 @@ public partial class MainPage : ContentPage
             User = CornMonitor.Singleton.User;
             OnPropertyChanged(nameof(User));
             UpdateShuckStatusAsync();
+
+
+
+            App.AppActivated += (object sender, EventArgs e) => {
+                UpdateShuckStatusAsync();
+            };
         };
+
 
     }
 
@@ -53,6 +60,10 @@ public partial class MainPage : ContentPage
         var info = await CornMonitor.Singleton.GetShuckerInfoAsync();
         if(info != null) {
             ShuckStatus = info.ShuckStatus;
+        } else {
+            ShuckStatus = false;
+            StatusText = "Please enter a username";
+            OnPropertyChanged(nameof(StatusText));
         }
     }
 }

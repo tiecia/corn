@@ -7,4 +7,4 @@
 					android:targetCellHeight="1"
 					android:updatePeriodMillis="1000"
 					android:initialLayout="@layout/DailyWidget"
-					android:previewImage="@drawable/test"/>
+					android:previewImage="@drawable/corn"/>
