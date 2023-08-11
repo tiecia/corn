@@ -9,13 +9,18 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SixLabors.Fonts;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Identity;
+using System.Diagnostics;
+using SQLitePCL;
 
 namespace CornBot
 {
     public class CornClient
     {
+        public static string BOT_KEY = "";
 
-        private readonly IConfiguration _configuration;
+        //private readonly IConfiguration _configuration;
         private readonly IServiceProvider _services;
 
         private readonly DiscordSocketConfig _socketConfig = new()
@@ -30,13 +35,15 @@ namespace CornBot
 
         public CornClient()
         {
-            _configuration = new ConfigurationBuilder()
-                .AddJsonFile("cornfig.json", false, false)
-                .Build();
+            var client = new SecretClient(new Uri("https://cornbotdevkeyvault.vault.azure.net/"), new DefaultAzureCredential());
+            BOT_KEY = client.GetSecret("DiscordBotKey").Value.Value;
+
+            //_configuration = new ConfigurationBuilder()
+            //    .AddJsonFile("cornfig.json", false, false)
+            //    .Build();
 
             _services = new ServiceCollection()
                 .AddSingleton(this)
-                .AddSingleton(_configuration)
                 .AddSingleton(_socketConfig)
                 .AddSingleton(new Random((int)DateTime.UtcNow.Ticks))
                 .AddSingleton<GuildTrackerSerializer>()
@@ -75,7 +82,7 @@ namespace CornBot
 
             await _services.GetRequiredService<ImageStore>().LoadImages();
 
-            await client.LoginAsync(TokenType.Bot, _configuration["discord_token"]);
+            await client.LoginAsync(TokenType.Bot, BOT_KEY);
             await client.StartAsync();
 
             var api = _services.GetRequiredService<CornAPI>();

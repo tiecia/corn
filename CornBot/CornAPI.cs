@@ -91,7 +91,7 @@ namespace CornBot {
                 }
             }
 
-            if (dailyCount == economy.Guilds.Count && queryGuild == null)
+            if (dailyCount > 0 && dailyCount == economy.Guilds.Count && queryGuild == null)
             {
                 return true;
             }
