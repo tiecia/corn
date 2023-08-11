@@ -51,7 +51,7 @@ namespace CornApp {
             userFile = File.Open(userFilePath, FileMode.OpenOrCreate, FileAccess.Write);
 
             httpClient = new HttpClient();
-            httpClient.Timeout = TimeSpan.FromSeconds(5);
+            httpClient.Timeout = TimeSpan.FromSeconds(10);
 
             CornMonitorInitialized?.Invoke(null, null);
         }
@@ -63,7 +63,7 @@ namespace CornApp {
         public async Task<ShuckerInfo> GetShuckerInfoAsync(int guildId)
         {
             if(User == "" || User == null) {
-                return null;
+                return new ShuckerInfo(ShuckerInfo.RequestStatus.UserError);
             }
 
             httpClient.CancelPendingRequests();
@@ -79,16 +79,18 @@ namespace CornApp {
                 }
             } catch (Exception e) {
                 Console.WriteLine("Request failed: " + e.Message);
-                return null;
+                return new ShuckerInfo(ShuckerInfo.RequestStatus.NetworkError);
             }
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<ShuckerInfo>();
+                var info = await response.Content.ReadFromJsonAsync<ShuckerInfo>();
+                info.Status = ShuckerInfo.RequestStatus.Success;
+                return info;
             }
             else
             {
-                return null;
+                return new ShuckerInfo(ShuckerInfo.RequestStatus.ServerError);
             }
         }
     }

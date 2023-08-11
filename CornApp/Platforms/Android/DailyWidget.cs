@@ -1,19 +1,9 @@
 ﻿using Android.App;
 using Android.Appwidget;
 using Android.Content;
-using Android.Text.Style;
 using Android.Views;
 using Android.Widget;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
-using static Microsoft.Maui.ApplicationModel.Platform;
 using Intent = Android.Content.Intent;
-using Timer = System.Threading.Timer;
 
 namespace CornApp.Platforms.Android {
     // Add Exported = true for your app to run as expected in Android 12 and above.
@@ -24,12 +14,9 @@ namespace CornApp.Platforms.Android {
     public class DailyWidget : AppWidgetProvider {
         public override void OnUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
             UpdateWidgetAsync(context);
-
-            SetOnClickAction(context);
-
         }
 
-        private void SetOnClickAction(Context context) {
+        private static void SetOnClickAction(Context context) {
             var appWidgetManager = AppWidgetManager.GetInstance(context);
             int[] widgetIds = appWidgetManager.GetAppWidgetIds(new ComponentName(context, Java.Lang.Class.FromType(typeof(DailyWidget)).Name));
 
@@ -50,6 +37,8 @@ namespace CornApp.Platforms.Android {
         }
 
         public static async void UpdateWidgetAsync(Context context) {
+            SetOnClickAction(context);
+
             var appWidgetManager = AppWidgetManager.GetInstance(context);
             int[] widgetIds = appWidgetManager.GetAppWidgetIds(new ComponentName(context, Java.Lang.Class.FromType(typeof(DailyWidget)).Name));
 
@@ -58,19 +47,26 @@ namespace CornApp.Platforms.Android {
 
                 if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet) {
                     SetNoConnection(remoteViews);
-                } else if (CornMonitor.Singleton.User == "" || CornMonitor.Singleton.User == null) {
-                    SetNoUser(remoteViews);
                 } else {
                     var info = await CornMonitor.Singleton.GetShuckerInfoAsync();
-                    if (info != null) {
-                        bool shuckStatus = info.ShuckStatus;
-                        if (shuckStatus) {
-                            SetYellowCorn(remoteViews);
-                        } else {
-                            SetRedCorn(remoteViews);
-                        }
-                    } else {
-                        SetNoServer(remoteViews);
+                    switch(info.Status) {
+                        case ShuckerInfo.RequestStatus.NetworkError:
+                            SetNoServer(remoteViews);
+                            break;
+                        case ShuckerInfo.RequestStatus.ServerError:
+                            SetNoServer(remoteViews);
+                            break;
+                        case ShuckerInfo.RequestStatus.UserError:
+                            SetNoUser(remoteViews);
+                            break;
+                        case ShuckerInfo.RequestStatus.Success:
+                            bool shuckStatus = info.ShuckStatus;
+                            if (shuckStatus) {
+                                SetYellowCorn(remoteViews);
+                            } else {
+                                SetRedCorn(remoteViews);
+                            }
+                            break;
                     }
                 }
                 appWidgetManager.UpdateAppWidget(id, remoteViews);

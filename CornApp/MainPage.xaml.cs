@@ -58,12 +58,25 @@ public partial class MainPage : ContentPage
 
     private async void UpdateShuckStatusAsync() {
         var info = await CornMonitor.Singleton.GetShuckerInfoAsync();
-        if(info != null) {
-            ShuckStatus = info.ShuckStatus;
-        } else {
-            ShuckStatus = false;
-            StatusText = "Please enter a username";
-            OnPropertyChanged(nameof(StatusText));
+        switch(info.Status) {
+            case ShuckerInfo.RequestStatus.NetworkError:
+                ShuckStatus = false;
+                StatusText = "Network Error";
+                OnPropertyChanged(nameof(StatusText));
+                break;
+            case ShuckerInfo.RequestStatus.ServerError:
+                ShuckStatus = false;
+                StatusText = "Server Error";
+                OnPropertyChanged(nameof(StatusText));
+                break;
+            case ShuckerInfo.RequestStatus.UserError:
+                ShuckStatus = false;
+                StatusText = "Please enter a username";
+                OnPropertyChanged(nameof(StatusText));
+                break;
+            case ShuckerInfo.RequestStatus.Success:
+                ShuckStatus = info.ShuckStatus;
+                break;
         }
     }
 }
