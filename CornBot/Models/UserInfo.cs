@@ -60,6 +60,10 @@ namespace CornBot.Models
         {
         }
 
+        public object Clone() {
+            return MemberwiseClone();
+        }
+
         public int CompareTo(UserInfo? other)
         {
             if (other == null) return 1;
