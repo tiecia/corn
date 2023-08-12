@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using CornBot.Models;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SignalR;
+using CornBot.API;
 
 namespace CornBot.Handlers
 {
@@ -40,6 +43,21 @@ namespace CornBot.Handlers
 
         private async Task MessageReceivedAsync(SocketMessage messageParam)
         {
+            Console.WriteLine("Message received");
+
+
+            IHost host = Host.CreateDefaultBuilder().ConfigureWebHostDefaults(webBuilder => {
+                webBuilder.UseStartup<StartupBase>();
+            }).Build();
+
+            //var hubContext = host.Services.GetService(typeof(IHubContext<CornHub>)) as CornHub;
+
+            //await hubContext.NotifyShuckerStatusChange(new ShuckerStatus() {
+            //    Username = "tiec",
+            //    ShuckStatus = false,
+            //    CornCount = 15
+            //});
+
             var message = messageParam as SocketUserMessage;
             if (message == null) return;
 

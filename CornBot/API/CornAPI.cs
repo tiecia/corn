@@ -5,31 +5,42 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
-namespace CornBot {
-    public class CornAPI {
+namespace CornBot.API
+{
+    public class CornAPI
+    {
         private readonly IServiceProvider _services;
 
-        public CornAPI(IServiceProvider services) {
+        public CornAPI(IServiceProvider services)
+        {
             _services = services;
         }
 
-        public async Task RunAsync() {
+        public async Task RunAsync()
+        {
             var builder = WebApplication.CreateBuilder();
 
             // Add services to the container.
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment()) {
+            if (app.Environment.IsDevelopment())
+            {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            else
+            {
+                app.UseHttpsRedirection();
+            }
 
-            app.UseHttpsRedirection();
+            app.MapHub<CornHub>("/cornhub");
+
 
             // Gets either global or guild specific info for a user.
             // GET http://{baseurl}/corncount?user={username}
@@ -48,7 +59,7 @@ namespace CornBot {
 
                 context.Response.ContentType = "application/json";
 
-                if(queryUser == null)
+                if (queryUser == null)
                 {
                     context.Response.StatusCode = 400;
                     return JsonConvert.SerializeObject(new ErrorResponse()
@@ -57,7 +68,7 @@ namespace CornBot {
                     });
                 }
 
-                return JsonConvert.SerializeObject(new ShuckerInfoResponse()
+                return JsonConvert.SerializeObject(new ShuckerStatus()
                 {
                     Username = queryUser,
                     CornCount = GetCornCount(queryUser, queryGuild),
@@ -82,7 +93,7 @@ namespace CornBot {
                     }
                     else if (user.Username == queryUser && user.HasClaimedDaily)
                     {
-                        if(queryGuild != null && guild.GuildId == ulong.Parse(queryGuild))
+                        if (queryGuild != null && guild.GuildId == ulong.Parse(queryGuild))
                         {
                             return true;
                         }
@@ -136,12 +147,7 @@ namespace CornBot {
             }
             return cornCount;
         }
-        private class ShuckerInfoResponse
-        {
-            public string Username { get; set; } = "";
-            public bool ShuckStatus { get; set; }
-            public long CornCount { get; set; }
-        }
+
 
         private class ErrorResponse
         {
