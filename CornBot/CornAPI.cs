@@ -31,6 +31,10 @@ namespace CornBot {
 
             app.UseHttpsRedirection();
 
+            app.MapGet("/", (HttpContext context) => {
+                return "CORN!";
+            });
+
             // Gets either global or guild specific info for a user.
             // GET http://{baseurl}/corncount?user={username}
             // GET http://{baseurl}/shuckstatus?user={username}&guild={guildid}
