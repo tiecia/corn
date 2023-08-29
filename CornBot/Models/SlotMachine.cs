@@ -178,6 +178,9 @@ namespace CornBot.Models
             multiplier += matches[BoxValue.CORN] * 3.0;
             multiplier += matches[BoxValue.UNICORN];
             multiplier += matches[BoxValue.POPCORN];
+            
+            if (multiplier == 0.0)
+                return 0;
 
             multiplier = 0.2 + multiplier * 0.9;
 

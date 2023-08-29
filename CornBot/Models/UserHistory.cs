@@ -177,6 +177,51 @@ namespace CornBot.Models
                 e.Timestamp.Day == day).Count() / 2;
         }
 
+        public int GetNumberOfCornucopias(ulong guildId)
+        {
+            return Entries.Where(e => e.Type == ActionType.CORNUCOPIA &&
+                e.GuildId == guildId).Count() / 2;
+        }
+
+        public long GetCornucopiaReturns(ulong guildId)
+        {
+            return Entries.Where(e => e.Type == ActionType.CORNUCOPIA &&
+                e.GuildId == guildId)
+                .Sum(e => e.Value);
+        }
+
+        public long GetGlobalCornucopiaReturns()
+        {
+            return Entries.Where(e => e.Type == ActionType.CORNUCOPIA)
+                .Sum(e => e.Value);
+        }
+
+        public float GetCornucopiaPercent(ulong guildId)
+        {
+            long investments = 0;
+            long returns = 0;
+
+            var iterator = guildId == 0 ? Entries : Entries.Where(e => e.GuildId == guildId);
+
+            foreach (var entry in iterator.Where(e => e.Type == ActionType.CORNUCOPIA))
+            {
+                if (entry.Value < 0)
+                    investments -= entry.Value;
+                else
+                    returns += entry.Value;
+            }
+
+            if (investments == 0)
+                return 0;
+            else
+                return (float)returns / investments - 1.0f;
+        }
+
+        public float GetGlobalCornucopiaPercent()
+        {
+            return GetCornucopiaPercent(0);
+        }
+
         public override int GetHashCode()
         {
             return HashCode.Combine(UserId, Entries);
