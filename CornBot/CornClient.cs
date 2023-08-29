@@ -1,4 +1,4 @@
-﻿using CornBot.Handlers;
+using CornBot.Handlers;
 using CornBot.Models;
 using CornBot.Utilities;
 using CornBot.Serialization;
@@ -20,7 +20,8 @@ namespace CornBot
     {
         public static string BOT_KEY = "";
 
-        //private readonly IConfiguration _configuration;
+        public static IConfiguration? Configuration;
+
         private readonly IServiceProvider _services;
 
         private readonly DiscordSocketConfig _socketConfig = new()
@@ -35,12 +36,18 @@ namespace CornBot
 
         public CornClient()
         {
-            var client = new SecretClient(new Uri("https://cornbotdevkeyvault.vault.azure.net/"), new DefaultAzureCredential());
-            BOT_KEY = client.GetSecret("DiscordBotKey").Value.Value;
+#if DEBUG
+            Configuration = new ConfigurationBuilder()
+                .AddJsonFile("cornfig.Development.json", false, false)
+                .Build();
+#else
+            Configuration = new ConfigurationBuilder()
+                .AddJsonFile("cornfig.Production.json", false, false)
+                .Build();
+#endif
 
-            //_configuration = new ConfigurationBuilder()
-            //    .AddJsonFile("cornfig.json", false, false)
-            //    .Build();
+            var client = new SecretClient(new Uri(Configuration["KeyVaultUri"]), new DefaultAzureCredential());
+            BOT_KEY = client.GetSecret("DiscordBotKey").Value.Value;
 
             _services = new ServiceCollection()
                 .AddSingleton(this)

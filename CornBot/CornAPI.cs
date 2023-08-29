@@ -1,4 +1,6 @@
-﻿using CornBot.Models;
+﻿using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using CornBot.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,12 +10,21 @@ using Newtonsoft.Json;
 namespace CornBot {
     public class CornAPI {
         private readonly IServiceProvider _services;
+        private string ADMIN_SECRET = "";
 
         public CornAPI(IServiceProvider services) {
             _services = services;
         }
 
         public async Task RunAsync() {
+            var client = new SecretClient(new Uri(CornClient.Configuration["KeyVaultUri"]), new DefaultAzureCredential());
+            ADMIN_SECRET = client.GetSecret("DiscordBotKey").Value.Value;
+
+            if(ADMIN_SECRET == "" || ADMIN_SECRET == null)
+            {
+                throw new Exception("Failed to get Admin secret fropm vault");
+            }
+
             var builder = WebApplication.CreateBuilder();
 
             // Add services to the container.
@@ -79,6 +90,16 @@ namespace CornBot {
 
                 return JsonConvert.SerializeObject(leaderboard);
             });
+
+            //app.MapGet("/debugEconomy", (HttpContext context) =>
+            //{
+            //    context.Response.ContentType = "application/json";
+            //    var econonmy = _services.GetRequiredService<GuildTracker>();
+            //    return JsonConvert.SerializeObject(econonmy, new JsonSerializerSettings()
+            //    {
+            //        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            //    });
+            //});
 
             await app.RunAsync();
         }
@@ -156,26 +177,31 @@ namespace CornBot {
         {
             var economy = _services.GetRequiredService<GuildTracker>();
             int dailyCount = 0;
+            int serverCount = 0;
             foreach (var guild in economy.Guilds.Values)
             {
                 foreach (var user in guild.Users.Values)
                 {
-                    if (user.Username == queryUser && !user.HasClaimedDaily)
+                    if(user.Username == queryUser)
                     {
-                        return false;
-                    }
-                    else if (user.Username == queryUser && user.HasClaimedDaily)
-                    {
-                        if(queryGuild != null && guild.GuildId == ulong.Parse(queryGuild))
+                        if (!user.HasClaimedDaily)
                         {
-                            return true;
+                            return false;
                         }
-                        dailyCount++;
+                        else
+                        {
+                            if(queryGuild != null && guild.GuildId == ulong.Parse(queryGuild))
+                            {
+                                return true;
+                            }
+                            dailyCount++;
+                        }
+                        serverCount++;
                     }
                 }
             }
 
-            if (dailyCount > 0 && dailyCount == economy.Guilds.Count && queryGuild == null)
+            if (dailyCount > 0 && dailyCount == serverCount && queryGuild == null)
             {
                 return true;
             }
