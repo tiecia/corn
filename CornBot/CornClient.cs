@@ -47,7 +47,7 @@ namespace CornBot
 #endif
 
             var client = new SecretClient(new Uri(Configuration["KeyVaultUri"]), new DefaultAzureCredential());
-            BOT_KEY = client.GetSecret("DiscordBotKey").Value.Value;
+            BOT_KEY = client.GetSecret(Configuration["KeyName"]).Value.Value;
 
             _services = new ServiceCollection()
                 .AddSingleton(this)

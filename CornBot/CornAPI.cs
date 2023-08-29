@@ -18,7 +18,7 @@ namespace CornBot {
 
         public async Task RunAsync() {
             var client = new SecretClient(new Uri(CornClient.Configuration["KeyVaultUri"]), new DefaultAzureCredential());
-            ADMIN_SECRET = client.GetSecret("DiscordBotKey").Value.Value;
+            ADMIN_SECRET = client.GetSecret(CornClient.Configuration["KeyName"]).Value.Value;
 
             if(ADMIN_SECRET == "" || ADMIN_SECRET == null)
             {

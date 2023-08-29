@@ -402,3 +402,7 @@ FodyWeavers.xsd
 CornBot/Properties/
 
 CornBot/userdata.db
+
+CornBot/cornfig.Development.json
+
+CornBot/cornfig.Production.json
