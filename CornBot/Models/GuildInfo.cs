@@ -92,6 +92,7 @@ namespace CornBot.Models
 
             var client = _services.GetRequiredService<DiscordSocketClient>();
             var guild = client.GetGuild(GuildId);
+            if(guild == null) return new List<IUser>();
             await guild.DownloadUsersAsync();
 
             foreach (var userInfo in allUsers.Reverse())

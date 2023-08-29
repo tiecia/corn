@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Discord;
+using Discord.Rest;
+using Microsoft.Extensions.Configuration;
 
 namespace CornBot.Models
 {
@@ -15,6 +17,7 @@ namespace CornBot.Models
         public GuildInfo Guild { get; init; }
 
         public ulong UserId { get; private set; }
+        public string Username { get; private set; }
         public long CornCount { get; set; }
         public bool HasClaimedDaily { get; set; }
         public DateTime CornMultiplierLastEdit { get; private set; }
@@ -45,11 +48,20 @@ namespace CornBot.Models
             _cornMultiplier = cornMultiplier;
             CornMultiplierLastEdit = cornMultiplierLastEdit;
             _services = services;
+
+            var restClient = new DiscordRestClient();
+            restClient.LoginAsync(TokenType.Bot, CornClient.BOT_KEY).Wait();
+            Username = restClient.GetUserAsync(userId).Result.Username;
+
         }
 
         public UserInfo(GuildInfo guild, ulong userId, IServiceProvider services)
             : this(guild, userId, 0, false, 1.0, DateTime.UtcNow, services)
         {
+        }
+
+        public object Clone() {
+            return MemberwiseClone();
         }
 
         public int CompareTo(UserInfo? other)

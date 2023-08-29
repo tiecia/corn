@@ -16,14 +16,14 @@ namespace CornBot.Handlers
         private readonly DiscordSocketClient _client;
         private readonly InteractionService _handler;
         private readonly IServiceProvider _services;
-        private readonly IConfiguration _configuration;
+        //private readonly IConfiguration _configuration;
 
-        public InteractionHandler(DiscordSocketClient client, InteractionService handler, IServiceProvider services, IConfiguration configuration)
+        public InteractionHandler(DiscordSocketClient client, InteractionService handler, IServiceProvider services)
         {
             _client = client;
             _handler = handler;
             _services = services;
-            _configuration = configuration;
+            //_configuration = configuration;
         }
 
         public async Task InitializeAsync()
@@ -41,12 +41,12 @@ namespace CornBot.Handlers
 
         private async Task ReadyAsync()
         {
-#if DEBUG
-            await _handler.RegisterCommandsToGuildAsync(_configuration.GetValue<ulong>("guild"), true);
-#else
-            await _client.GetGuild(_configuration.GetValue<ulong>("guild")).DeleteApplicationCommandsAsync();
+//#if DEBUG
+            //await _handler.RegisterCommandsToGuildAsync(_configuration.GetValue<ulong>("guild"), true);
+//#else
+            //await _client.GetGuild(_configuration.GetValue<ulong>("guild")).DeleteApplicationCommandsAsync();
             await _handler.RegisterCommandsGloballyAsync();
-#endif
+//#endif
         }
 
         private async Task HandleInteraction(SocketInteraction interaction)
