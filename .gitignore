@@ -399,3 +399,10 @@ FodyWeavers.xsd
 
 # Config file with tokens/keys
 /CornBot/cornfig.json
+CornBot/Properties/
+
+CornBot/userdata.db
+
+CornBot/cornfig.Development.json
+
+CornBot/cornfig.Production.json

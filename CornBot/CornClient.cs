@@ -1,4 +1,4 @@
-﻿using CornBot.Handlers;
+using CornBot.Handlers;
 using CornBot.Models;
 using CornBot.Utilities;
 using CornBot.Serialization;
@@ -8,18 +8,20 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using SixLabors.Fonts;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Identity;
+using System.Diagnostics;
+using SQLitePCL;
 
 namespace CornBot
 {
     public class CornClient
     {
+        public static string BOT_KEY = "";
 
-        private readonly IConfiguration _configuration;
+        public static IConfiguration? Configuration;
+
         private readonly IServiceProvider _services;
 
         private readonly DiscordSocketConfig _socketConfig = new()
@@ -34,13 +36,21 @@ namespace CornBot
 
         public CornClient()
         {
-            _configuration = new ConfigurationBuilder()
-                .AddJsonFile("cornfig.json", false, false)
+#if DEBUG
+            Configuration = new ConfigurationBuilder()
+                .AddJsonFile("cornfig.Development.json", false, false)
                 .Build();
+#else
+            Configuration = new ConfigurationBuilder()
+                .AddJsonFile("cornfig.Production.json", false, false)
+                .Build();
+#endif
+
+            var client = new SecretClient(new Uri(Configuration["KeyVaultUri"]), new DefaultAzureCredential());
+            BOT_KEY = client.GetSecret(Configuration["KeyName"]).Value.Value;
 
             _services = new ServiceCollection()
                 .AddSingleton(this)
-                .AddSingleton(_configuration)
                 .AddSingleton(_socketConfig)
                 .AddSingleton(new Random((int)DateTime.UtcNow.Ticks))
                 .AddSingleton<GuildTrackerSerializer>()
@@ -51,6 +61,7 @@ namespace CornBot
                 .AddSingleton<InteractionHandler>()
                 .AddSingleton<ImageManipulator>()
                 .AddSingleton<ImageStore>()
+                .AddSingleton<CornAPI>()
                 .BuildServiceProvider();
         }
 
@@ -78,10 +89,11 @@ namespace CornBot
 
             await _services.GetRequiredService<ImageStore>().LoadImages();
 
-            await client.LoginAsync(TokenType.Bot, _configuration["discord_token"]);
+            await client.LoginAsync(TokenType.Bot, BOT_KEY);
             await client.StartAsync();
 
-            await Task.Delay(Timeout.Infinite);
+            var api = _services.GetRequiredService<CornAPI>();
+            await api.RunAsync(); // Does not return
         }
 
         public Task Log(LogMessage msg)
