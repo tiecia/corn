@@ -131,9 +131,7 @@ namespace CornBot.Models
                 else
                     lastPlacementNumber = placement;
 
-                var stringId = user is not SocketGuildUser guildUser ?
-                    user.ToString() :
-                    $"{guildUser.DisplayName} ({guildUser})";
+                var stringId = Utility.GetUserDisplayString(user, true);
                 
                 var suffix = (!addSuffix) || userData.HasClaimedDaily ?
                     "" : $" {Constants.CALENDAR_EMOJI}";
@@ -185,9 +183,7 @@ namespace CornBot.Models
                         if (userObj != null)
                         {
                             bestDaily = userHistory;
-                            bestDailyName = userObj is not SocketGuildUser guildUser ?
-                                user.ToString() :
-                                $"{guildUser.DisplayName} ({guildUser})";
+                            bestDailyName = Utility.GetUserDisplayString(userObj, true);
                         }
                     }
 
@@ -199,9 +195,7 @@ namespace CornBot.Models
                         if (userObj != null)
                         {
                             worstDaily = userHistory;
-                            worstDailyName = userObj is not SocketGuildUser guildUser ?
-                                user.ToString() :
-                                $"{guildUser.DisplayName} ({guildUser})";
+                            worstDailyName = Utility.GetUserDisplayString(userObj, true);
                         }
                     }
                 }
@@ -216,9 +210,7 @@ namespace CornBot.Models
                         if (userObj != null)
                         {
                             bestGambling = userHistory;
-                            bestGamblingName = userObj is not SocketGuildUser guildUser ?
-                                user.ToString() :
-                                $"{guildUser.DisplayName} ({guildUser})";
+                            bestGamblingName = Utility.GetUserDisplayString(userObj, true);
                         }
                     }
 
@@ -230,9 +222,7 @@ namespace CornBot.Models
                         if (userObj != null)
                         {
                             worstGambling = userHistory;
-                            worstGamblingName = userObj is not SocketGuildUser guildUser ?
-                                user.ToString() :
-                                $"{guildUser.DisplayName} ({guildUser})";
+                            worstGamblingName = Utility.GetUserDisplayString(userObj, true);
                         }
                     }
                 }

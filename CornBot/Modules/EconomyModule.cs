@@ -152,11 +152,11 @@ namespace CornBot.Modules
                     .WithIsInline(true),
             };
 
-            var displayName = user is SocketGuildUser guildUser ? guildUser.DisplayName : user.Username;
+            var displayName = Utility.GetUserDisplayString(user, false);
 
             var author = new EmbedAuthorBuilder()
                 .WithIconUrl(user.GetAvatarUrl())
-                .WithName(user.ToString());
+                .WithName(user.Username);
 
             var embed = new EmbedBuilder()
                 .WithTitle($"{displayName}'s corn stats")
@@ -182,12 +182,14 @@ namespace CornBot.Modules
             var timestamp = Utility.GetAdjustedTimestamp();
             var numberInDay = userHistory.GetNumberOfCornucopias(userInfo.Guild.GuildId, timestamp.Day);
 
-            if (amount < 1)
+            if (numberInDay >= 3)
+                await RespondAsync("what are you trying to do, feed your gambling addiction?");
+            else if (amount < 1)
                 await RespondAsync("you can't gamble less than 1 corn.");
             else if (amount > userInfo.CornCount)
                 await RespondAsync("you don't have that much corn.");
-            else if (numberInDay >= 3)
-                await RespondAsync("what are you trying to do, feed your gambling addiction?");
+            else if (amount > 100)
+                await RespondAsync("you can't gamble more than 100 corn at a time.");
             else
             {
                 SlotMachine slotMachine = new(3, amount, random);
