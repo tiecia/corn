@@ -406,3 +406,7 @@ CornBot/userdata.db
 CornBot/cornfig.Development.json
 
 CornBot/cornfig.Production.json
+
+.idea/.idea.CornBot/.idea/
+
+CornBot/cornfig.Local.json
