@@ -1,4 +1,4 @@
-﻿using CornBot.Serialization;
+using CornBot.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;

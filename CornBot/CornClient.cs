@@ -1,7 +1,3 @@
-using CornBot.Handlers;
-using CornBot.Models;
-using CornBot.Utilities;
-using CornBot.Serialization;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
@@ -12,7 +8,16 @@ using SixLabors.Fonts;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Identity;
 using System.Diagnostics;
+using CornBot.Services.Handlers;
+using CornBot.Services.Models;
+using CornBot.Services.Serialization;
+using CornBot.Services.Utilities;
 using SQLitePCL;
+
+// cornfig.Local.json format
+// {
+//     "BotKey" : "######..."
+// }
 
 namespace CornBot
 {
@@ -80,6 +85,7 @@ namespace CornBot
                 .AddSingleton<ImageManipulator>()
                 .AddSingleton<ImageStore>()
                 .AddSingleton<CornAPI>()
+                .AddSingleton<MqttService>()
                 .BuildServiceProvider();
         }
 
@@ -109,6 +115,8 @@ namespace CornBot
 
             await client.LoginAsync(TokenType.Bot, BOT_KEY);
             await client.StartAsync();
+
+            await _services.GetRequiredService<MqttService>().RunAsync();
 
             var api = _services.GetRequiredService<CornAPI>();
             await api.RunAsync(); // Does not return

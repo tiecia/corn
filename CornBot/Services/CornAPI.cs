@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
-namespace CornBot {
+namespace CornBot.Services {
     public class CornAPI {
         private readonly IServiceProvider _services;
         private string ADMIN_SECRET = "";
@@ -17,13 +17,13 @@ namespace CornBot {
         }
 
         public async Task RunAsync() {
-            var client = new SecretClient(new Uri(CornClient.Configuration["KeyVaultUri"]), new DefaultAzureCredential());
-            ADMIN_SECRET = client.GetSecret(CornClient.Configuration["KeyName"]).Value.Value;
-
-            if(ADMIN_SECRET == "" || ADMIN_SECRET == null)
-            {
-                throw new Exception("Failed to get Admin secret fropm vault");
-            }
+            // var client = new SecretClient(new Uri(CornClient.Configuration["KeyVaultUri"]), new DefaultAzureCredential());
+            // ADMIN_SECRET = client.GetSecret(CornClient.Configuration["KeyName"]).Value.Value;
+            //
+            // if(ADMIN_SECRET == "" || ADMIN_SECRET == null)
+            // {
+            //     throw new Exception("Failed to get Admin secret from vault");
+            // }
 
             var builder = WebApplication.CreateBuilder();
 

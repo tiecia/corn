@@ -1,4 +1,4 @@
-﻿using CornBot.Models;
+using CornBot.Models;
 using CornBot.Utilities;
 using Discord.Interactions;
 using Discord.WebSocket;
