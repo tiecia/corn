@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CornBot.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Discord;
 using Discord.Rest;

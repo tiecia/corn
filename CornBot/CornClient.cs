@@ -8,10 +8,11 @@ using SixLabors.Fonts;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Identity;
 using System.Diagnostics;
-using CornBot.Services.Handlers;
-using CornBot.Services.Models;
-using CornBot.Services.Serialization;
-using CornBot.Services.Utilities;
+using CornBot.Handlers;
+using CornBot.Models;
+using CornBot.Serialization;
+using CornBot.Services;
+using CornBot.Utilities;
 using SQLitePCL;
 
 // cornfig.Local.json format
