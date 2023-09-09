@@ -33,15 +33,29 @@ public class MqttService
     public async void SendCornChangedNotificationAsync(string username)
     {
         var applicationMessage = new MqttApplicationMessageBuilder()
-            .WithTopic("corn/changed")
+            .WithTopic("corn/changed/corncount")
             .WithPayload(username)
             .Build();
 
         var res = await MqttClient.PublishAsync(applicationMessage, CancellationToken.None);
 
-        Console.WriteLine(res.IsSuccess
-            ? "Sent MQTT message on corn/changed"
-            : $"Failed to send MQTT message to corn/changed. Reason: {res.ReasonCode}");
+        Log(res.IsSuccess
+            ? "Sent MQTT message on corn/changed/corncount"
+            : $"Failed to send MQTT message to corn/changed/corncount. Reason: {res.ReasonCode}");
+    }
+
+    public async void SendShuckStatusChangedNotificationAsync(string username)
+    {
+        var applicationMessage = new MqttApplicationMessageBuilder()
+            .WithTopic("corn/changed/shuckstatus")
+            .WithPayload(username)
+            .Build();
+
+        var res = await MqttClient.PublishAsync(applicationMessage, CancellationToken.None);
+
+        Log(res.IsSuccess
+            ? "Sent MQTT message on corn/changed/shuckstatus"
+            : $"Failed to send MQTT message to corn/changed/shuckstatus. Reason: {res.ReasonCode}");
     }
 
     private void Log(string msg)

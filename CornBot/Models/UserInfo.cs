@@ -34,7 +34,21 @@ namespace CornBot.Models
                 _cornCount = value;
             }
         }
-        public bool HasClaimedDaily { get; set; }
+
+        private bool _hasClaimedDaily;
+
+        public bool HasClaimedDaily
+        {
+            get => _hasClaimedDaily;
+            set
+            {
+                if (Username != null)
+                {
+                    _services.GetRequiredService<MqttService>().SendShuckStatusChangedNotificationAsync(Username);
+                }
+                _hasClaimedDaily = value;
+            }
+        }
         public DateTime CornMultiplierLastEdit { get; private set; }
         public double CornMultiplier
         {
