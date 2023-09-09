@@ -1,7 +1,3 @@
-using CornBot.Handlers;
-using CornBot.Models;
-using CornBot.Utilities;
-using CornBot.Serialization;
 using Discord;
 using Discord.Commands;
 using Discord.Interactions;
@@ -12,7 +8,17 @@ using SixLabors.Fonts;
 using Azure.Security.KeyVault.Secrets;
 using Azure.Identity;
 using System.Diagnostics;
+using CornBot.Handlers;
+using CornBot.Models;
+using CornBot.Serialization;
+using CornBot.Services;
+using CornBot.Utilities;
 using SQLitePCL;
+
+// cornfig.Local.json format
+// {
+//     "BotKey" : "######..."
+// }
 
 namespace CornBot
 {
@@ -36,18 +42,36 @@ namespace CornBot
 
         public CornClient()
         {
+            var useLocalConfig = false;
 #if DEBUG
-            Configuration = new ConfigurationBuilder()
-                .AddJsonFile("cornfig.Development.json", false, false)
-                .Build();
+            if (useLocalConfig)
+            {
+                Configuration = new ConfigurationBuilder()
+                    .AddJsonFile("cornfig.Local.json", false, false)
+                    .Build();
+
+            } else {
+                Configuration = new ConfigurationBuilder()
+                    .AddJsonFile("cornfig.Development.json", false, false)
+                    .Build();
+            }
+
+
 #else
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile("cornfig.Production.json", false, false)
                 .Build();
 #endif
 
-            var client = new SecretClient(new Uri(Configuration["KeyVaultUri"]), new DefaultAzureCredential());
-            BOT_KEY = client.GetSecret(Configuration["KeyName"]).Value.Value;
+            if (useLocalConfig)
+            {
+                BOT_KEY = Configuration["BotKey"];
+            }
+            else
+            {
+                var client = new SecretClient(new Uri(Configuration["KeyVaultUri"]), new DefaultAzureCredential());
+                BOT_KEY = client.GetSecret(Configuration["KeyName"]).Value.Value;
+            }
 
             _services = new ServiceCollection()
                 .AddSingleton(this)
@@ -62,6 +86,7 @@ namespace CornBot
                 .AddSingleton<ImageManipulator>()
                 .AddSingleton<ImageStore>()
                 .AddSingleton<CornAPI>()
+                .AddSingleton<MqttService>()
                 .BuildServiceProvider();
         }
 
@@ -91,6 +116,8 @@ namespace CornBot
 
             await client.LoginAsync(TokenType.Bot, BOT_KEY);
             await client.StartAsync();
+
+            await _services.GetRequiredService<MqttService>().RunAsync();
 
             var api = _services.GetRequiredService<CornAPI>();
             await api.RunAsync(); // Does not return

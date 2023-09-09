@@ -1,9 +1,10 @@
-﻿using CornBot.Utilities;
+using CornBot.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CornBot.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Discord;
 using Discord.Rest;
@@ -18,7 +19,21 @@ namespace CornBot.Models
 
         public ulong UserId { get; private set; }
         public string Username { get; private set; }
-        public long CornCount { get; set; }
+        
+        private long _cornCount;
+
+        public long CornCount
+        {
+            get => _cornCount;
+            set
+            {
+                if (Username != null)
+                {
+                    _services.GetRequiredService<MqttService>().SendCornChangedNotificationAsync(Username);
+                }
+                _cornCount = value;
+            }
+        }
         public bool HasClaimedDaily { get; set; }
         public DateTime CornMultiplierLastEdit { get; private set; }
         public double CornMultiplier

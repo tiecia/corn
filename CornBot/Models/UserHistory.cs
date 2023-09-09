@@ -1,4 +1,4 @@
-﻿using CornBot.Utilities;
+using CornBot.Utilities;
 using Discord.Rest;
 using System;
 using System.Collections.Generic;

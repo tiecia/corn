@@ -1,4 +1,4 @@
-﻿using CornBot.Handlers;
+using CornBot.Handlers;
 using CornBot.Utilities;
 using CornBot.Models;
 using CornBot.Serialization;

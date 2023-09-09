@@ -1,4 +1,4 @@
-﻿using CornBot.Utilities;
+using CornBot.Utilities;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;

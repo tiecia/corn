@@ -1,4 +1,4 @@
-﻿using CornBot;
+using CornBot;
 using CornBot.Utilities;
 
 SimpleRNG.SetSeedFromSystemTime();
