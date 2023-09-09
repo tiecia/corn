@@ -37,7 +37,11 @@ public class MqttService
             .WithPayload(username)
             .Build();
 
-        await MqttClient.PublishAsync(applicationMessage, CancellationToken.None);
+        var res = await MqttClient.PublishAsync(applicationMessage, CancellationToken.None);
+
+        Console.WriteLine(res.IsSuccess
+            ? "Sent MQTT message on corn/changed"
+            : $"Failed to send MQTT message to corn/changed. Reason: {res.ReasonCode}");
     }
 
     private void Log(string msg)
