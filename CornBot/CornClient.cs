@@ -42,7 +42,7 @@ namespace CornBot
 
         public CornClient()
         {
-            var useLocalConfig = true;
+            var useLocalConfig = false;
 #if DEBUG
             if (useLocalConfig)
             {
