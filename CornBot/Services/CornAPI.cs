@@ -17,13 +17,6 @@ namespace CornBot.Services {
         }
 
         public async Task RunAsync() {
-            // var client = new SecretClient(new Uri(CornClient.Configuration["KeyVaultUri"]), new DefaultAzureCredential());
-            // ADMIN_SECRET = client.GetSecret(CornClient.Configuration["KeyName"]).Value.Value;
-            //
-            // if(ADMIN_SECRET == "" || ADMIN_SECRET == null)
-            // {
-            //     throw new Exception("Failed to get Admin secret from vault");
-            // }
 
             var builder = WebApplication.CreateBuilder();
 
