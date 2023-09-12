@@ -1,3 +1,5 @@
+using Discord;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +28,22 @@ namespace CornBot.Utilities
                 _ => Constants.CornEvent.NONE,
             };
         }
+
+        public static string GetUserDisplayString(IUser user, bool includeUsername)
+        {
+            string displayName = user is SocketGuildUser guildUser ?
+                guildUser.DisplayName :
+                (user.GlobalName ?? user.Username);
+
+            if (includeUsername)
+            {
+                return displayName == user.Username ? user.Username : $"{displayName} ({user.Username})";
+            }
+            else
+            {
+                return displayName;
+            }
+        } 
 
     }
 }
